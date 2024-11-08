@@ -7,14 +7,21 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class MenuEntity {
-
+@Table(name = "usuarios")
+public class UsuarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
-    private String descripcion;
-    private float precio;
-    private String imagen;
+    private String usuario;
+    private String contrasena;
+
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
+
+
+    public enum Rol{
+        ADMIN,
+        NORMAL
+    }
 
 }
