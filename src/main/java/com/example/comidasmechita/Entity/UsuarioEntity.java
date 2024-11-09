@@ -14,6 +14,9 @@ public class UsuarioEntity {
     private Long id;
     private String usuario;
     private String contrasena;
+    private String telefono;
+    private String email;
+    private String direccion;
 
     @Enumerated(EnumType.STRING)
     private Rol rol;

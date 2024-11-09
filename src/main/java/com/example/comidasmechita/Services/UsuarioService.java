@@ -64,6 +64,9 @@ public class UsuarioService {
                 throw new RuntimeException("Error al encriptar la contraseña", e);
             }
             updatedUsuario.setRol(usuario.getRol());
+            updatedUsuario.setEmail(usuario.getEmail());
+            updatedUsuario.setTelefono(usuario.getTelefono());
+            updatedUsuario.setDireccion(usuario.getDireccion());
             return usuarioRepository.save(updatedUsuario);
         } else {
             throw new RuntimeException("Usuario no encontrado con ID: " + id);
