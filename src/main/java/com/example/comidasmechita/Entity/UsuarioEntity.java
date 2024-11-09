@@ -1,5 +1,6 @@
 package com.example.comidasmechita.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,12 @@ public class UsuarioEntity {
     private String telefono;
     private String email;
     private String direccion;
+
+
+    @OneToOne(mappedBy = "usuario")  // Relación bidireccional con CarritoEntity
+    @JsonManagedReference  // Indica que se debe serializar el carrito del usuario
+    private CarritoEntity carrito;
+
 
     @Enumerated(EnumType.STRING)
     private Rol rol;
