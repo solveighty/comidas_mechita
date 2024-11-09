@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,14 +17,12 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Obtener todos los usuarios
     @GetMapping
     public ResponseEntity<List<UsuarioEntity>> getAllUsuarios() {
         List<UsuarioEntity> usuarios = usuarioService.getAllUsuarios();
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
 
-    // Obtener un usuario por su ID
     @GetMapping("/obtenerusuario/{id}")
     public ResponseEntity<UsuarioEntity> getUsuarioById(@PathVariable Long id) {
         Optional<UsuarioEntity> usuario = usuarioService.getUsuarioById(id);
@@ -31,14 +30,12 @@ public class UsuarioController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // Crear un nuevo usuario
     @PostMapping("/crearusuario")
     public ResponseEntity<UsuarioEntity> createUsuario(@RequestBody UsuarioEntity usuario) {
         UsuarioEntity createdUsuario = usuarioService.saveUsuario(usuario);
         return new ResponseEntity<>(createdUsuario, HttpStatus.CREATED);
     }
 
-    // Actualizar un usuario por su ID
     @PutMapping("/editarusuario/{id}")
     public ResponseEntity<UsuarioEntity> updateUsuario(@PathVariable Long id, @RequestBody UsuarioEntity usuario) {
         try {
@@ -49,7 +46,6 @@ public class UsuarioController {
         }
     }
 
-    // Eliminar un usuario por su ID
     @DeleteMapping("/eliminarusuario/{id}")
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
         try {
@@ -57,6 +53,27 @@ public class UsuarioController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/verificarPassword")
+    public ResponseEntity<String> verificarPassword(@RequestParam String usuario, @RequestParam String contrasena) {
+        Optional<UsuarioEntity> usuarioOpt = usuarioService.getUsuarioByUsuario(usuario);
+
+        if (usuarioOpt.isPresent()) {
+            UsuarioEntity usuarioExistente = usuarioOpt.get();
+            try {
+                boolean isPasswordCorrect = usuarioService.checkPassword(contrasena, usuarioExistente.getContrasena());
+                if (isPasswordCorrect) {
+                    return new ResponseEntity<>("Contraseña correcta", HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>("Contraseña incorrecta", HttpStatus.UNAUTHORIZED);
+                }
+            } catch (NoSuchAlgorithmException e) {
+                return new ResponseEntity<>("Error al verificar la contraseña", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
     }
 }

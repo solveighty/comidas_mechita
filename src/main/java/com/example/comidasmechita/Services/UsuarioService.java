@@ -2,9 +2,13 @@ package com.example.comidasmechita.Services;
 
 import com.example.comidasmechita.Entity.UsuarioEntity;
 import com.example.comidasmechita.Repository.UsuarioRepository;
+import com.example.comidasmechita.Security.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +30,14 @@ public class UsuarioService {
     }
 
     public UsuarioEntity saveUsuario(UsuarioEntity usuario) {
-        return usuarioRepository.save(usuario);
+        try {
+            // Encriptar la contraseña antes de guardarla
+            String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
+            usuario.setContrasena(encodedPassword);
+            return usuarioRepository.save(usuario);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
+        }
     }
 
     public void deleteUsuario(Long id) {
@@ -45,7 +56,13 @@ public class UsuarioService {
         if (existingUsuario.isPresent()) {
             UsuarioEntity updatedUsuario = existingUsuario.get();
             updatedUsuario.setUsuario(usuario.getUsuario());
-            updatedUsuario.setContrasena(usuario.getContrasena());
+            try {
+                // Encriptar la contraseña antes de actualizarla
+                String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
+                updatedUsuario.setContrasena(encodedPassword);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error al encriptar la contraseña", e);
+            }
             updatedUsuario.setRol(usuario.getRol());
             return usuarioRepository.save(updatedUsuario);
         } else {
@@ -57,5 +74,11 @@ public class UsuarioService {
         return usuarioRepository.findById(userId)
                 .map(usuario -> usuario.getRol() == UsuarioEntity.Rol.ADMIN)
                 .orElse(false);
+    }
+
+    public boolean checkPassword(String enteredPassword, String storedHash) throws NoSuchAlgorithmException {
+        // Compara el hash de la contraseña ingresada con el hash almacenado
+        String enteredPasswordHash = PasswordEncoder.encode(enteredPassword);
+        return enteredPasswordHash.equals(storedHash);
     }
 }
