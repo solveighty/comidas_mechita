@@ -52,4 +52,10 @@ public class UsuarioService {
             throw new RuntimeException("Usuario no encontrado con ID: " + id);
         }
     }
+
+    public boolean isAdmin(Long userId) {
+        return usuarioRepository.findById(userId)
+                .map(usuario -> usuario.getRol() == UsuarioEntity.Rol.ADMIN)
+                .orElse(false);
+    }
 }

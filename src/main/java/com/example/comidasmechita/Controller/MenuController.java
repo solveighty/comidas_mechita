@@ -2,6 +2,7 @@ package com.example.comidasmechita.Controller;
 
 import com.example.comidasmechita.Entity.MenuEntity;
 import com.example.comidasmechita.Services.MenuService;
+import com.example.comidasmechita.Services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ import java.util.Optional;
 public class MenuController {
     @Autowired
     private MenuService menuService;
+    @Autowired
+    private UsuarioService usuarioService;
+
 
     @GetMapping
     public List<MenuEntity> getAllMenus() {
@@ -28,23 +32,33 @@ public class MenuController {
     }
 
     @PostMapping("/crearmenu")
-    public MenuEntity createMenu(@RequestBody MenuEntity menu) {
-        return menuService.saveMenu( menu);
+    public ResponseEntity<MenuEntity> createMenu(@RequestParam Long userId, @RequestBody MenuEntity menu) {
+        if (usuarioService.isAdmin(userId)) {
+            MenuEntity createdMenu = menuService.saveMenu(menu);
+            return new ResponseEntity<>(createdMenu, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     @DeleteMapping("/eliminar/{id}")
-    public void deleteMenu(@PathVariable Long id) {
-        menuService.deleteMenu(id);
+    public ResponseEntity<Void> deleteMenu(@RequestParam Long userId, @PathVariable Long id) {
+        if (usuarioService.isAdmin(userId)) {
+            menuService.deleteMenu(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<MenuEntity> updateMenu(@PathVariable Long id, @RequestBody MenuEntity menu) {
-        try {
+    public ResponseEntity<MenuEntity> updateMenu(@RequestParam Long userId, @PathVariable Long id, @RequestBody MenuEntity menu) {
+        if (usuarioService.isAdmin(userId)) {
             menu.setId(id);
             MenuEntity updatedMenu = menuService.updateMenu(menu);
             return new ResponseEntity<>(updatedMenu, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
 }
