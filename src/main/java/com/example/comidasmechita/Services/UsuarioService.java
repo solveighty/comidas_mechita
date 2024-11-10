@@ -56,22 +56,29 @@ public class UsuarioService {
         if (existingUsuario.isPresent()) {
             UsuarioEntity updatedUsuario = existingUsuario.get();
             updatedUsuario.setUsuario(usuario.getUsuario());
+            updatedUsuario.setNombre(usuario.getNombre());
+
             try {
-                // Encriptar la contraseña antes de actualizarla
-                String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
-                updatedUsuario.setContrasena(encodedPassword);
+                // Only hash the password if it's different from the current hash
+                if (!updatedUsuario.getContrasena().equals(usuario.getContrasena())) {
+                    String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
+                    updatedUsuario.setContrasena(encodedPassword);
+                }
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException("Error al encriptar la contraseña", e);
             }
+
             updatedUsuario.setRol(usuario.getRol());
             updatedUsuario.setEmail(usuario.getEmail());
             updatedUsuario.setTelefono(usuario.getTelefono());
             updatedUsuario.setDireccion(usuario.getDireccion());
+
             return usuarioRepository.save(updatedUsuario);
         } else {
             throw new RuntimeException("Usuario no encontrado con ID: " + id);
         }
     }
+
 
     public boolean isAdmin(Long userId) {
         return usuarioRepository.findById(userId)
