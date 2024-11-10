@@ -5,7 +5,7 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Link } from 'react-router-dom';
-import './Login.css';
+import '../styles/Login.css';
 
 function Login({ onLogin }) {
     const [username, setUsername] = useState('');

@@ -4,7 +4,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
-import './Home.css';
+import '../styles/Home.css';
 
 function Home() {
     const [featuredMenus, setFeaturedMenus] = useState([]);

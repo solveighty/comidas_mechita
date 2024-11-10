@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import { useRef } from 'react';
-import './Layout.css';
+import '../styles/Layout.css';
 
 function Layout({ children, onLogout, cartItemsCount, userData }) {
     const userMenu = useRef(null);
@@ -12,36 +12,32 @@ function Layout({ children, onLogout, cartItemsCount, userData }) {
         {
             label: 'Ver Perfil',
             icon: 'pi pi-user',
-            command: () => {
+            command: (e) => {
                 navigate('/perfil');
-                userMenu.current.hide();
             }
         },
         {
             label: 'Configurar Cuenta',
             icon: 'pi pi-cog',
-            command: () => {
+            command: (e) => {
                 navigate('/configuracion');
-                userMenu.current.hide();
             }
         },
         {
             label: 'Ver Carrito',
+            icon: 'pi pi-shopping-cart',
             template: (item) => (
-                <button 
-                    className="cart-button"
-                    onClick={() => {
-                        navigate('/carrito');
-                        userMenu.current.hide();
-                    }}
-                >
-                    <i className="pi pi-shopping-cart menu-item-icon"></i>
-                    <span>Ver Carrito</span>
+                <div className="menu-item-content">
+                    <i className={`${item.icon} menu-item-icon`}></i>
+                    <span>{item.label}</span>
                     {cartItemsCount > 0 && (
                         <span className="cart-badge">{cartItemsCount}</span>
                     )}
-                </button>
-            )
+                </div>
+            ),
+            command: (e) => {
+                navigate('/carrito');
+            }
         },
         {
             separator: true
@@ -49,9 +45,8 @@ function Layout({ children, onLogout, cartItemsCount, userData }) {
         {
             label: 'Cerrar Sesión',
             icon: 'pi pi-sign-out',
-            command: () => {
+            command: (e) => {
                 onLogout();
-                userMenu.current.hide();
             }
         }
     ];
@@ -81,6 +76,8 @@ function Layout({ children, onLogout, cartItemsCount, userData }) {
                         model={userMenuItems}
                         popup
                         className="user-menu"
+                        dismissable={true}
+                        autoZIndex
                     />
                 </div>
             </nav>

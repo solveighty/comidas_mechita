@@ -12,7 +12,7 @@ import {
     faClock,
     faEnvelope
 } from '@fortawesome/free-solid-svg-icons';
-import './Contact.css';
+import '../styles/Contact.css';
 
 function Contact() {
     const socialMedia = [

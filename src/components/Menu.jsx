@@ -3,7 +3,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
-import './Menu.css';
+import '../styles/Menu.css';
 
 function Menu() {
     const [menus, setMenus] = useState([]);

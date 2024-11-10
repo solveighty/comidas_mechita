@@ -91,7 +91,7 @@ function App() {
                   cartItemsCount={cartItems.length} 
                   userData={userData}
                 >
-                  <Settings />
+                  <Settings userData={userData} />
                 </Layout>
               } 
             />

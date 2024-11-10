@@ -1,5 +1,5 @@
 import { Card } from 'primereact/card';
-import './Profile.css';
+import '../styles/Profile.css';
 
 function Profile({ userData }) {
     return (
@@ -18,6 +18,10 @@ function Profile({ userData }) {
                     <div className="profile-item">
                         <h3>Teléfono</h3>
                         <p>{userData?.telefono || 'No disponible'}</p>
+                    </div>
+                    <div className="profile-item">
+                        <h3>Dirección</h3>
+                        <p>{userData?.direccion || 'No disponible'}</p>
                     </div>
                 </div>
             </Card>
