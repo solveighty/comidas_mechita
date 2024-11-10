@@ -1,85 +1,48 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { 
-  UserCircleIcon, 
-  Cog6ToothIcon, 
-  ShoppingCartIcon,
-  ArrowRightOnRectangleIcon,
-  UserIcon
-} from '@heroicons/react/24/solid'
+import { Link, NavLink } from 'react-router-dom';
+import { Button } from 'primereact/button';
+import './Navbar.css';
 
-function Navbar({ onLogout, cartItemsCount = 0 }) {
-  const [showUserMenu, setShowUserMenu] = useState(false)
-  const navigate = useNavigate()
-  const menuRef = useRef()
-
-  const handleUserMenuClick = () => {
-    setShowUserMenu(!showUserMenu)
-  }
-
-  const handleMenuItemClick = (path, action) => {
-    setShowUserMenu(false) // Cerrar el menú
-    if (action) {
-      action()
-    } else {
-      navigate(path)
-    }
-  }
-
-  return (
-    <nav className="navbar">
-      <div className="nav-links">
-        <Link to="/">Inicio</Link>
-        <Link to="/menu">Menú</Link>
-        <Link to="/contacto">Contacto</Link>
-      </div>
-      
-      <div className="user-menu" ref={menuRef}>
-        <div onClick={handleUserMenuClick} style={{ position: 'relative' }}>
-          <UserCircleIcon className="user-icon" />
-          {cartItemsCount > 0 && (
-            <span className="cart-count">{cartItemsCount}</span>
-          )}
-        </div>
-        
-        {showUserMenu && (
-          <div className="user-menu-dropdown">
-            <div 
-              className="user-menu-item"
-              onClick={() => handleMenuItemClick('/perfil')}
-            >
-              <UserIcon />
-              Ver Perfil
+function Navbar({ onLogout, cartItemsCount, userData }) {
+    return (
+        <nav className="navbar">
+            <div className="navbar-content">
+                <Link to="/home" className="navbar-brand">
+                    Mi Restaurante
+                </Link>
+                <div className="navbar-menu">
+                    <NavLink to="/home" className={({ isActive }) => 
+                        isActive ? 'nav-link active' : 'nav-link'
+                    }>
+                        Inicio
+                    </NavLink>
+                    <NavLink to="/menu" className={({ isActive }) => 
+                        isActive ? 'nav-link active' : 'nav-link'
+                    }>
+                        Menú
+                    </NavLink>
+                    <NavLink to="/contacto" className={({ isActive }) => 
+                        isActive ? 'nav-link active' : 'nav-link'
+                    }>
+                        Contacto
+                    </NavLink>
+                </div>
+                <div className="navbar-right">
+                    <Button 
+                        icon="pi pi-shopping-cart" 
+                        badge={cartItemsCount.toString()} 
+                        className="p-button-rounded"
+                    />
+                    <Button
+                        icon="pi pi-user"
+                        onClick={onLogout}
+                        className="p-button-rounded p-button-text"
+                        tooltip={`${userData?.nombre || 'Usuario'} (Cerrar sesión)`}
+                        tooltipOptions={{ position: 'bottom' }}
+                    />
+                </div>
             </div>
-            <div 
-              className="user-menu-item"
-              onClick={() => handleMenuItemClick('/configuracion')}
-            >
-              <Cog6ToothIcon />
-              Configurar Cuenta
-            </div>
-            <div 
-              className="user-menu-item"
-              onClick={() => handleMenuItemClick('/carrito')}
-            >
-              <ShoppingCartIcon />
-              Ver Carrito
-              {cartItemsCount > 0 && (
-                <span>({cartItemsCount})</span>
-              )}
-            </div>
-            <div 
-              className="user-menu-item"
-              onClick={() => handleMenuItemClick(null, onLogout)}
-            >
-              <ArrowRightOnRectangleIcon />
-              Cerrar Sesión
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
+        </nav>
+    );
 }
 
-export default Navbar 
+export default Navbar;

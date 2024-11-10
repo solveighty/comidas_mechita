@@ -1,81 +1,129 @@
-import {
-  PhoneIcon,
-  EnvelopeIcon,
-  MapPinIcon,
-  ClockIcon,
-} from '@heroicons/react/24/solid'
-import {
-  FaFacebook,
-  FaInstagram,
-  FaTwitter,
-  FaWhatsapp
-} from 'react-icons/fa'
+import { Card } from 'primereact/card';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faFacebookF, 
+    faInstagram, 
+    faTwitter, 
+    faWhatsapp 
+} from '@fortawesome/free-brands-svg-icons';
+import { 
+    faLocationDot,
+    faPhone,
+    faClock,
+    faEnvelope
+} from '@fortawesome/free-solid-svg-icons';
+import './Contact.css';
 
 function Contact() {
-  return (
-    <div className="page-container">
-      <header className="page-header">
-        <h1>Contacto</h1>
-        <p>¡Estamos aquí para atenderte!</p>
-      </header>
+    const socialMedia = [
+        {
+            name: 'Facebook',
+            icon: faFacebookF,
+            url: 'https://facebook.com/turestaurante',
+            color: '#1877f2'
+        },
+        {
+            name: 'Instagram',
+            icon: faInstagram,
+            url: 'https://instagram.com/turestaurante',
+            color: '#e4405f'
+        },
+        {
+            name: 'Twitter',
+            icon: faTwitter,
+            url: 'https://twitter.com/turestaurante',
+            color: '#1da1f2'
+        },
+        {
+            name: 'WhatsApp',
+            icon: faWhatsapp,
+            url: 'https://wa.me/tunumero',
+            color: '#25d366'
+        }
+    ];
 
-      <div className="page-content">
+    return (
         <div className="contact-container">
-          <div className="contact-info">
-            <div className="contact-card">
-              <PhoneIcon className="contact-icon" />
-              <h3>Teléfono</h3>
-              <p>+34 123 456 789</p>
-              <p>+34 987 654 321</p>
-            </div>
+            <h1 className="contact-title">Contáctanos</h1>
+            
+            <div className="contact-content">
+                <div className="contact-info-section">
+                    <Card className="contact-card info-card">
+                        <h2>Información de Contacto</h2>
+                        <div className="contact-details">
+                            <div className="contact-item">
+                                <span className="contact-icon">
+                                    <FontAwesomeIcon icon={faLocationDot} />
+                                </span>
+                                <div className="contact-text">
+                                    <h3>Ubicación</h3>
+                                    <p>Av. Principal, Local #123</p>
+                                    <p>Ciudad, Estado</p>
+                                </div>
+                            </div>
 
-            <div className="contact-card">
-              <EnvelopeIcon className="contact-icon" />
-              <h3>Email</h3>
-              <p>info@restaurante.com</p>
-              <p>reservas@restaurante.com</p>
-            </div>
+                            <div className="contact-item">
+                                <span className="contact-icon">
+                                    <FontAwesomeIcon icon={faPhone} />
+                                </span>
+                                <div className="contact-text">
+                                    <h3>Teléfonos</h3>
+                                    <p>+58 424-1234567</p>
+                                    <p>+58 212-1234567</p>
+                                </div>
+                            </div>
 
-            <div className="contact-card">
-              <MapPinIcon className="contact-icon" />
-              <h3>Ubicación</h3>
-              <p>Calle Principal 123</p>
-              <p>Madrid, España</p>
-            </div>
+                            <div className="contact-item">
+                                <span className="contact-icon">
+                                    <FontAwesomeIcon icon={faClock} />
+                                </span>
+                                <div className="contact-text">
+                                    <h3>Horario</h3>
+                                    <p>Lunes a Viernes: 8:00 AM - 10:00 PM</p>
+                                    <p>Sábados y Domingos: 9:00 AM - 11:00 PM</p>
+                                </div>
+                            </div>
 
-            <div className="contact-card">
-              <ClockIcon className="contact-icon" />
-              <h3>Horario</h3>
-              <p>Lunes a Viernes: 12:00 - 23:00</p>
-              <p>Sábado y Domingo: 13:00 - 00:00</p>
-            </div>
-          </div>
+                            <div className="contact-item">
+                                <span className="contact-icon">
+                                    <FontAwesomeIcon icon={faEnvelope} />
+                                </span>
+                                <div className="contact-text">
+                                    <h3>Correo Electrónico</h3>
+                                    <p>info@turestaurante.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
 
-          <div className="social-container">
-            <h2>Síguenos en Redes Sociales</h2>
-            <div className="social-links">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link facebook">
-                <FaFacebook />
-                <span>Facebook</span>
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link instagram">
-                <FaInstagram />
-                <span>Instagram</span>
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link twitter">
-                <FaTwitter />
-                <span>Twitter</span>
-              </a>
-              <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="social-link whatsapp">
-                <FaWhatsapp />
-                <span>WhatsApp</span>
-              </a>
+                <div className="social-media-section">
+                    <Card className="contact-card social-card">
+                        <h2>Síguenos en Redes Sociales</h2>
+                        <div className="social-buttons">
+                            {socialMedia.map((social) => (
+                                <a 
+                                    key={social.name}
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="social-link"
+                                    title={social.name}
+                                >
+                                    <span 
+                                        className="social-icon"
+                                        style={{ backgroundColor: social.color }}
+                                    >
+                                        <FontAwesomeIcon icon={social.icon} />
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  )
+    );
 }
 
-export default Contact 
+export default Contact;
