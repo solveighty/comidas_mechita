@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -75,5 +76,12 @@ public class UsuarioController {
         } else {
             return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/obtenerPorUsuario/{usuario}")  // Cambié el nombre para que coincida con el frontend
+    public ResponseEntity<UsuarioEntity> getUsuarioByUsuario(@PathVariable String usuario) {
+        Optional<UsuarioEntity> usuarioOpt = usuarioService.getUsuarioByUsuario(usuario);
+        return usuarioOpt.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
