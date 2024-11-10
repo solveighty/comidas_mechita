@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
@@ -44,11 +45,18 @@ public class MenuController {
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> deleteMenu(@RequestParam Long userId, @PathVariable Long id) {
-        if (usuarioService.isAdmin(userId)) {
-            menuService.deleteMenu(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        try {
+            if (usuarioService.isAdmin(userId)) {
+                menuService.deleteMenu(id);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Si el menú o usuario no existe
+        } catch (Exception e) {
+            e.printStackTrace(); // Agregar log para identificar el error
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -17,4 +17,12 @@ public class MenuEntity {
     private float precio;
     private String imagen;
 
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+
+    public enum Categoria {
+        PLATOS_ESPECIALES,
+        COMIDAS_RAPIDAS,
+        BOCADITOS
+    }
 }
