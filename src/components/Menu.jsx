@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
+import { Toast } from 'primereact/toast';
 import '../styles/Menu.css';
 
-function Menu() {
+function Menu({ userData }) {
     const [menus, setMenus] = useState([]);
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [dialogVisible, setDialogVisible] = useState(false);
+    const toast = useRef(null);
 
     const categoryNames = {
         'PLATOS_ESPECIALES': 'Platos Especiales',
@@ -43,6 +45,10 @@ function Menu() {
         fetchMenus();
     }, []);
 
+    useEffect(() => {
+        console.log('userData en Menu:', userData);
+    }, [userData]);
+
     const handleQuantityChange = (menuId, value) => {
         setQuantities(prev => ({
             ...prev,
@@ -50,9 +56,50 @@ function Menu() {
         }));
     };
 
-    const handleAddToCart = (menu) => {
-        const quantity = quantities[menu.id];
-        console.log(`Agregando al carrito: ${menu.nombre}, Cantidad: ${quantity}`);
+    const checkIfItemInCart = async (menuId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/usuarios`);
+            if (!response.ok) {
+                throw new Error('Error al verificar el carrito');
+            }
+            
+            const users = await response.json();
+            const currentUser = users.find(user => user.id === userData.id);
+            
+            if (currentUser?.carrito?.items) {
+                return currentUser.carrito.items.some(item => item.menu.id === menuId);
+            }
+            return false;
+        } catch (error) {
+            console.error('Error al verificar el carrito:', error);
+            return false;
+        }
+    };
+
+    const handleAddToCart = async (menuId) => {
+        if (!userData || !userData.id) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Debe iniciar sesión para agregar al carrito',
+                life: 3000
+            });
+            return;
+        }
+
+        // Verificar si el producto ya está en el carrito
+        const isInCart = await checkIfItemInCart(menuId);
+        if (isInCart) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Aviso',
+                detail: 'Este producto ya está en tu carrito',
+                life: 3000
+            });
+            return;
+        }
+
+        addToCart(menuId);
     };
 
     const openDialog = (menu) => {
@@ -77,7 +124,10 @@ function Menu() {
                     src={menu.imagen} 
                     alt={menu.nombre} 
                     className="menu-image"
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/300'}
+                    onError={(e) => {
+                        e.target.onerror = null; // Prevenir loop infinito
+                        e.target.style.display = 'none'; // Ocultar imagen si falla
+                    }}
                 />
                 <div className="menu-content">
                     <h3 className="menu-title">{menu.nombre}</h3>
@@ -123,7 +173,7 @@ function Menu() {
                             icon="pi pi-shopping-cart"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleAddToCart(menu);
+                                handleAddToCart(menu.id);
                             }}
                             className="add-to-cart-button"
                         />
@@ -133,12 +183,66 @@ function Menu() {
         </div>
     );
 
+    const addToCart = async (menuId) => {
+        // Primero verificamos que el toast esté disponible
+        if (!toast.current) {
+            console.error('Toast ref no está disponible');
+            return;
+        }
+
+        // Verificamos los datos
+        if (!userData || !userData.id) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Debe iniciar sesión para agregar al carrito',
+                life: 3000
+            });
+            return;
+        }
+
+        const cartData = {
+            usuarioId: userData.id,
+            menuId: menuId,
+            cantidad: 1
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cartData)
+            });
+
+            if (response.ok) {
+                toast.current.show({
+                    severity: 'success',
+                    summary: '¡Éxito!',
+                    detail: 'Producto agregado al carrito',
+                    life: 3000
+                });
+            } else {
+                throw new Error('Error al agregar al carrito');
+            }
+        } catch (error) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo agregar al carrito',
+                life: 3000
+            });
+        }
+    };
+
     if (loading) {
         return <div className="loading-spinner">Cargando...</div>;
     }
 
     return (
         <div className="menu-container">
+            <Toast ref={toast} />
             <h1 className="menu-page-title">Nuestro Menú</h1>
             
             {Object.entries(menusByCategory).map(([category, items]) => (
@@ -166,7 +270,10 @@ function Menu() {
                             src={selectedMenu.imagen} 
                             alt={selectedMenu.nombre} 
                             className="dialog-image"
-                            onError={(e) => e.target.src = 'https://via.placeholder.com/300'}
+                            onError={(e) => {
+                                e.target.onerror = null; // Prevenir loop infinito
+                                e.target.style.display = 'none'; // Ocultar imagen si falla
+                            }}
                         />
                         <div className="dialog-details">
                             <p className="dialog-description">{selectedMenu.descripcion}</p>
@@ -210,7 +317,7 @@ function Menu() {
                                 <Button 
                                     label="Agregar al Carrito" 
                                     icon="pi pi-shopping-cart"
-                                    onClick={() => handleAddToCart(selectedMenu)}
+                                    onClick={() => addToCart(selectedMenu.id)}
                                     className="add-to-cart-button"
                                 />
                             </div>

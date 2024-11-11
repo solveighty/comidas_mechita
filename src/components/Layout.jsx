@@ -27,13 +27,18 @@ function Layout({ children, onLogout, cartItemsCount, userData }) {
             label: 'Ver Carrito',
             icon: 'pi pi-shopping-cart',
             template: (item) => (
-                <div className="menu-item-content">
-                    <i className={`${item.icon} menu-item-icon`}></i>
-                    <span>{item.label}</span>
+                <button 
+                    className="cart-button"
+                    onClick={() => {
+                        navigate('/carrito');
+                    }}
+                >
+                    <i className="pi pi-shopping-cart menu-item-icon"></i>
+                    <span>Ver Carrito</span>
                     {cartItemsCount > 0 && (
                         <span className="cart-badge">{cartItemsCount}</span>
                     )}
-                </div>
+                </button>
             ),
             command: (e) => {
                 navigate('/carrito');

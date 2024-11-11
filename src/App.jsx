@@ -9,6 +9,7 @@ import Menu from './components/Menu'
 import Contact from './components/Contact'
 import Profile from './components/Profile'
 import Settings from './components/Settings'
+import Cart from './components/Cart'
 
 
 function App() {
@@ -55,7 +56,7 @@ function App() {
                   cartItemsCount={cartItems.length} 
                   userData={userData}
                 >
-                  <Menu />
+                  <Menu userData={userData} />
                 </Layout>
               } 
             />
@@ -92,6 +93,18 @@ function App() {
                   userData={userData}
                 >
                   <Settings userData={userData} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/carrito" 
+              element={
+                <Layout 
+                  onLogout={handleLogout} 
+                  cartItemsCount={cartItems.length} 
+                  userData={userData}
+                >
+                  <Cart userData={userData} />
                 </Layout>
               } 
             />
