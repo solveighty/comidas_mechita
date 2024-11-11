@@ -24,5 +24,6 @@ public class CarritoEntity {
     private UsuarioEntity usuario;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<CarritoItemEntity> items = new ArrayList<>();
 }

@@ -44,10 +44,17 @@ public class CarritoController {
         return new ResponseEntity<>(carrito, HttpStatus.OK);
     }
 
-    // Eliminar un ítem del carrito
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> eliminarCarrito(@PathVariable Long id) {
-        carritoService.eliminarCarrito(id);
+    @DeleteMapping("/vaciar/{carritoId}")
+    public ResponseEntity<Void> vaciarCarrito(@PathVariable Long carritoId) {
+        carritoService.vaciarCarrito(carritoId);
         return ResponseEntity.noContent().build(); // Retorna 204 No Content si la eliminación es exitosa
     }
+
+    @DeleteMapping("/eliminar/{carritoId}/{itemId}")
+    public ResponseEntity<Void> eliminarItemDelCarrito(@PathVariable Long carritoId, @PathVariable Long itemId) {
+        carritoService.eliminarItemDelCarrito(carritoId, itemId);
+        return ResponseEntity.noContent().build(); // Retorna 204 No Content si la eliminación es exitosa
+    }
+
+
 }

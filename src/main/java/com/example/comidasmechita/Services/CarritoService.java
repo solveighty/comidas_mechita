@@ -7,6 +7,7 @@ import com.example.comidasmechita.Entity.UsuarioEntity;
 import com.example.comidasmechita.Repository.CarritoItemRepository;
 import com.example.comidasmechita.Repository.CarritoRepository;
 import com.example.comidasmechita.Repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,21 +76,38 @@ public class CarritoService {
         return item.getCarrito();
     }
 
-    public void eliminarCarrito(Long carritoId) {
+    public void vaciarCarrito(Long carritoId) {
+        // Buscar el carrito por el ID
         CarritoEntity carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
-        // Elimina el carrito de la relación en UsuarioEntity
-        UsuarioEntity usuario = carrito.getUsuario();
-        if (usuario != null) {
-            usuario.setCarrito(null); // Elimina la referencia del carrito
-            usuarioRepository.save(usuario); // Guarda los cambios en el usuario
-        }
+        // Vaciar los ítems del carrito
+        carrito.getItems().clear();
 
-        // Elimina los items del carrito antes de eliminar el carrito
-        carritoItemRepository.deleteAll(carrito.getItems());
-
-        // Finalmente, elimina el carrito de la base de datos
-        carritoRepository.delete(carrito);
+        // Guardar el carrito con los ítems vacíos
+        carritoRepository.save(carrito);
     }
+
+
+    public void eliminarItemDelCarrito(Long carritoId, Long itemId) {
+        // Buscar el carrito por el ID
+        CarritoEntity carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+
+        // Buscar el ítem en el carrito
+        CarritoItemEntity itemAEliminar = carrito.getItems().stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Ítem no encontrado en el carrito"));
+
+        // Eliminar el ítem
+        carrito.getItems().remove(itemAEliminar);
+
+        // Eliminar el ítem de la base de datos
+        carritoItemRepository.delete(itemAEliminar);
+
+        // Guardar el carrito actualizado
+        carritoRepository.save(carrito);
+    }
+
 }
