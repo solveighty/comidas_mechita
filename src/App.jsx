@@ -37,14 +37,14 @@ function App() {
         {isAuthenticated ? (
           <>
             <Route 
-              path="/home" 
+              path="/" 
               element={
                 <Layout 
                   onLogout={handleLogout} 
                   cartItemsCount={cartItems.length} 
                   userData={userData}
                 >
-                  <Home />
+                  <Home userData={userData} />
                 </Layout>
               } 
             />
@@ -108,7 +108,7 @@ function App() {
                 </Layout>
               } 
             />
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />

@@ -13,6 +13,7 @@ function Menu({ userData }) {
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [dialogVisible, setDialogVisible] = useState(false);
     const toast = useRef(null);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
 
     const categoryNames = {
         'PLATOS_ESPECIALES': 'Platos Especiales',
@@ -184,30 +185,15 @@ function Menu({ userData }) {
     );
 
     const addToCart = async (menuId) => {
-        // Primero verificamos que el toast esté disponible
-        if (!toast.current) {
-            console.error('Toast ref no está disponible');
-            return;
-        }
-
-        // Verificamos los datos
-        if (!userData || !userData.id) {
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Debe iniciar sesión para agregar al carrito',
-                life: 3000
-            });
-            return;
-        }
-
-        const cartData = {
-            usuarioId: userData.id,
-            menuId: menuId,
-            cantidad: 1
-        };
-
         try {
+            const quantity = quantities[menuId] || 1; // Usar la cantidad seleccionada o 1 por defecto
+
+            const cartData = {
+                usuarioId: userData.id,
+                menuId: menuId,
+                cantidad: quantity
+            };
+
             const response = await fetch('http://localhost:8080/carrito/agregar', {
                 method: 'POST',
                 headers: {
@@ -216,16 +202,23 @@ function Menu({ userData }) {
                 body: JSON.stringify(cartData)
             });
 
-            if (response.ok) {
-                toast.current.show({
-                    severity: 'success',
-                    summary: '¡Éxito!',
-                    detail: 'Producto agregado al carrito',
-                    life: 3000
-                });
-            } else {
+            if (!response.ok) {
                 throw new Error('Error al agregar al carrito');
             }
+
+            toast.current.show({
+                severity: 'success',
+                summary: '¡Éxito!',
+                detail: 'Producto agregado al carrito',
+                life: 3000
+            });
+
+            // Resetear la cantidad después de agregar al carrito
+            setQuantities(prev => ({
+                ...prev,
+                [menuId]: 1
+            }));
+
         } catch (error) {
             toast.current.show({
                 severity: 'error',

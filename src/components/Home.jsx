@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
+import { Toast } from 'primereact/toast';
 import '../styles/Home.css';
 
-function Home() {
+function Home({ userData }) {
+    const toast = useRef(null);
     const [featuredMenus, setFeaturedMenus] = useState([]);
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
@@ -46,22 +48,100 @@ function Home() {
         fetchMenus();
     }, []);
 
-    const handleQuantityChange = (menuId, value, event) => {
-        if (event) {
-            event.stopPropagation();
-        }
+    const handleQuantityChange = (menuId, value) => {
         setQuantities(prev => ({
             ...prev,
             [menuId]: value
         }));
     };
 
-    const handleAddToCart = (menu, event) => {
-        if (event) {
-            event.stopPropagation();
+    const checkIfItemInCart = async (menuId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/usuarios`);
+            if (!response.ok) {
+                throw new Error('Error al verificar el carrito');
+            }
+            
+            const users = await response.json();
+            const currentUser = users.find(user => user.id === userData.id);
+            
+            if (currentUser?.carrito?.items) {
+                return currentUser.carrito.items.some(item => item.menu.id === menuId);
+            }
+            return false;
+        } catch (error) {
+            console.error('Error al verificar el carrito:', error);
+            return false;
         }
-        const quantity = quantities[menu.id];
-        console.log(`Agregando al carrito: ${menu.nombre}, Cantidad: ${quantity}`);
+    };
+
+    const addToCart = async (menuId) => {
+        console.log('userData en addToCart:', userData);
+
+        if (!userData || !userData.id) {
+            console.log('No hay userData o userData.id');
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Debe iniciar sesión para agregar al carrito',
+                life: 3000
+            });
+            return;
+        }
+
+        // Verificar si el producto ya está en el carrito
+        const isInCart = await checkIfItemInCart(menuId);
+        if (isInCart) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Aviso',
+                detail: 'Este producto ya está en tu carrito',
+                life: 3000
+            });
+            return;
+        }
+
+        try {
+            const quantity = quantities[menuId] || 1;
+            
+            console.log('Enviando datos:', {
+                usuarioId: userData.id,
+                menuId: menuId,
+                cantidad: quantity
+            });
+
+            const response = await fetch('http://localhost:8080/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usuarioId: userData.id,
+                    menuId: menuId,
+                    cantidad: quantity
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al agregar al carrito');
+            }
+
+            toast.current.show({
+                severity: 'success',
+                summary: '¡Éxito!',
+                detail: 'Producto agregado al carrito',
+                life: 3000
+            });
+
+        } catch (error) {
+            console.error('Error completo:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo agregar al carrito',
+                life: 3000
+            });
+        }
     };
 
     const openDialog = (menu) => {
@@ -125,7 +205,7 @@ function Home() {
                             <Button 
                                 label="Agregar al Carrito" 
                                 icon="pi pi-shopping-cart"
-                                onClick={(e) => handleAddToCart(menu, e)}
+                                onClick={(e) => addToCart(menu.id)}
                                 className="add-to-cart-button"
                             />
                         </div>
@@ -137,6 +217,7 @@ function Home() {
 
     return (
         <div className="home-container">
+            <Toast ref={toast} />
             <div className="welcome-section">
                 <h1>Bienvenidos a Nuestro Restaurante</h1>
                 <p>Descubre nuestra selección de platos destacados</p>
@@ -198,7 +279,7 @@ function Home() {
                                 <Button 
                                     label="Agregar al Carrito" 
                                     icon="pi pi-shopping-cart"
-                                    onClick={(e) => handleAddToCart(selectedMenu, e)}
+                                    onClick={(e) => addToCart(selectedMenu.id)}
                                     className="p-button-rounded"
                                 />
                             </div>

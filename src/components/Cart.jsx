@@ -92,6 +92,50 @@ function Cart({ userData }) {
         }, 0);
     };
 
+    const handlePayment = async () => {
+        try {
+            if (!userData?.carrito?.id) {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se encontró el carrito',
+                    life: 3000
+                });
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/carrito/pagar/${userData.carrito.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al procesar el pago');
+            }
+
+            toast.current.show({
+                severity: 'success',
+                summary: '¡Éxito!',
+                detail: 'Pago procesado correctamente',
+                life: 3000
+            });
+
+            // Actualizar el carrito después del pago
+            await fetchCartItems();
+
+        } catch (error) {
+            console.error('Error:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo procesar el pago',
+                life: 3000
+            });
+        }
+    };
+
     return (
         <div className="cart-container">
             <Toast ref={toast} />
@@ -171,6 +215,8 @@ function Cart({ userData }) {
                                 label="Proceder al Pago" 
                                 icon="pi pi-shopping-cart"
                                 className="p-button-success p-button-raised"
+                                onClick={handlePayment}
+                                disabled={cartItems.length === 0}
                             />
                         </div>
                     </Card>
