@@ -91,4 +91,5 @@ public class UsuarioService {
         String enteredPasswordHash = PasswordEncoder.encode(enteredPassword);
         return enteredPasswordHash.equals(storedHash);
     }
+
 }

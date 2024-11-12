@@ -76,18 +76,6 @@ public class CarritoService {
         return item.getCarrito();
     }
 
-    public void vaciarCarrito(Long carritoId) {
-        // Buscar el carrito por el ID
-        CarritoEntity carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
-
-        // Vaciar los ítems del carrito
-        carrito.getItems().clear();
-
-        // Guardar el carrito con los ítems vacíos
-        carritoRepository.save(carrito);
-    }
-
 
     public void eliminarItemDelCarrito(Long carritoId, Long itemId) {
         // Buscar el carrito por el ID
@@ -109,5 +97,45 @@ public class CarritoService {
         // Guardar el carrito actualizado
         carritoRepository.save(carrito);
     }
+
+    public void simularPago(Long carritoId) {
+        // Buscar el carrito por el ID
+        CarritoEntity carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+
+        // 1. Calcular el total del carrito
+        double total = calcularTotal(carrito);
+        System.out.println("Total a pagar: " + total);
+
+        // 2. Simulamos que el pago ha sido realizado exitosamente
+        boolean pagoExitoso = realizarPagoSimulado(total);
+
+        if (pagoExitoso) {
+            // 3. Vaciar los ítems del carrito después de realizar el pago
+            carrito.getItems().clear();
+
+            // 4. Guardar el carrito con los ítems vacíos
+            carritoRepository.save(carrito);
+
+            System.out.println("Pago exitoso. Carrito vaciado.");
+        } else {
+            throw new RuntimeException("Error al procesar el pago.");
+        }
+    }
+
+    private double calcularTotal(CarritoEntity carrito) {
+        double total = 0.0;
+        for (CarritoItemEntity item : carrito.getItems()) {
+            total += item.getMenu().getPrecio() * item.getCantidad();
+        }
+        return total;
+    }
+
+    private boolean realizarPagoSimulado(double total) {
+        // Aquí puedes agregar la lógica simulada para el proceso de pago.
+        // Por ejemplo, vamos a simular que siempre se paga correctamente.
+        return true; // Simulamos siempre que el pago es exitoso
+    }
+
 
 }
