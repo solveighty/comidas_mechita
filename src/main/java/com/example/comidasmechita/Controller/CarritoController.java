@@ -55,6 +55,4 @@ public class CarritoController {
         carritoService.simularPago(carritoId);
         return ResponseEntity.noContent().build(); // Retorna 204 No Content si la eliminación es exitosa
     }
-
-
 }

@@ -1,15 +1,18 @@
 package com.example.comidasmechita.Services;
 
-import com.example.comidasmechita.Entity.CarritoEntity;
-import com.example.comidasmechita.Entity.CarritoItemEntity;
-import com.example.comidasmechita.Entity.MenuEntity;
-import com.example.comidasmechita.Entity.UsuarioEntity;
-import com.example.comidasmechita.Repository.CarritoItemRepository;
-import com.example.comidasmechita.Repository.CarritoRepository;
-import com.example.comidasmechita.Repository.UsuarioRepository;
+
+import com.example.comidasmechita.Entity.*;
+import com.example.comidasmechita.Repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class CarritoService {
@@ -24,6 +27,11 @@ public class CarritoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    HistorialCompraService historialCompraService;
+
+
 
     public CarritoEntity getOrCreateCarrito(Long usuarioId) {
         UsuarioEntity usuario = usuarioRepository.findById(usuarioId)
@@ -98,6 +106,7 @@ public class CarritoService {
         carritoRepository.save(carrito);
     }
 
+    @Transactional
     public void simularPago(Long carritoId) {
         // Buscar el carrito por el ID
         CarritoEntity carrito = carritoRepository.findById(carritoId)
@@ -111,7 +120,11 @@ public class CarritoService {
         boolean pagoExitoso = realizarPagoSimulado(total);
 
         if (pagoExitoso) {
-            // 3. Vaciar los ítems del carrito después de realizar el pago
+            // 3. Registrar compra en el historial
+            historialCompraService.registrarCompra(carrito);
+
+            // 4. Vaciar los ítems del carrito después de realizar el pago
+
             carrito.getItems().clear();
 
             // 4. Guardar el carrito con los ítems vacíos
@@ -136,6 +149,4 @@ public class CarritoService {
         // Por ejemplo, vamos a simular que siempre se paga correctamente.
         return true; // Simulamos siempre que el pago es exitoso
     }
-
-
 }

@@ -14,7 +14,7 @@ public class MenuEntity {
     private Long id;
     private String nombre;
     private String descripcion;
-    private float precio;
+    private Float precio;
     private String imagen;
 
     @Enumerated(EnumType.STRING)
