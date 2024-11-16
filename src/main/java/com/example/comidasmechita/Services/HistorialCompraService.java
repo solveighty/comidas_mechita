@@ -17,6 +17,9 @@ public class HistorialCompraService {
     @Autowired
     private HistorialCompraRepository historialCompraRepository;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     @Transactional
     public void registrarCompra(CarritoEntity carrito) {
         // Crear un nuevo historial de compra
@@ -42,5 +45,13 @@ public class HistorialCompraService {
     // Nuevo método para buscar el historial por usuario
     public List<HistorialCompraEntity> findByUsuarioId(Long usuarioId) {
         return historialCompraRepository.findByUsuarioId(usuarioId);
+    }
+
+    public List<HistorialCompraEntity> getAllHistorialIfAdmin(Long userId) {
+        if (usuarioService.isAdmin(userId)) {
+            return historialCompraRepository.findAll();
+        } else {
+            throw new RuntimeException("Acceso denegado. Solo los administradores pueden ver el historial completo.");
+        }
     }
 }
