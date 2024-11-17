@@ -319,175 +319,151 @@ function Home({ userData }) {
                 header="Detalles del plato"
                 visible={dialogVisible}
                 style={{
-                    width: '70vw',
-                    padding: '20px',
+                    width: '30vw', // Reduce el ancho del Dialog
+                    padding: '15px',
                     borderRadius: '10px',
                     backgroundColor: '#f5f5f5',
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                 }}
                 onHide={() => setDialogVisible(false)}
                 modal
+                draggable={false}
                 className="p-d-flex p-ai-center"
-                baseZIndex={1000} // Asegura que el fondo esté detrás del modal
-                draggable={false} // Desactiva la capacidad de mover el Dialog con el mouse
+                baseZIndex={1000}
             >
                 <div
                     style={{
                         background: '#fff',
-                        borderRadius: '15px',
-                        padding: '30px',
+                        borderRadius: '10px',
+                        padding: '20px',
                         marginTop: '10px',
-                        boxShadow: '0px 4px 20px rgba(0,0,0,0.1)',
+                        boxShadow: '0px 4px 15px rgba(0,0,0,0.1)',
+                        textAlign: 'center', // Centra todo el texto y elementos
                         transition: 'all 0.3s ease',
                     }}
                 >
-                    <div
+                    <img
+                        src={selectedMenu?.imagen}
+                        alt={selectedMenu?.nombre}
+                        className="menu-image"
                         style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            width: '100%',
+                            maxHeight: '200px', // Tamaño más pequeño
+                            objectFit: 'cover',
+                            borderRadius: '10px',
+                            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                            marginBottom: '15px',
+                            transition: 'transform 0.3s ease',
+                        }}
+                        onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+                        onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
+                    />
+                    <h3
+                        style={{
+                            fontSize: '20px', // Tamaño más pequeño
+                            fontWeight: 'bold',
+                            color: '#333',
+                            marginBottom: '8px',
                         }}
                     >
-                        <img
-                            src={selectedMenu?.imagen}
-                            alt={selectedMenu?.nombre}
-                            className="menu-image"
-                            style={{
-                                width: '100%',
-                                height: 'auto',
-                                maxHeight: '400px',
-                                objectFit: 'cover',
-                                borderRadius: '10px',
-                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                                marginBottom: '20px',
-                                transition: 'transform 0.3s ease',
-                            }}
-                            onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
-                            onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
-                        />
-                        <h3
-                            style={{
-                                fontSize: '24px',
-                                fontWeight: 'bold',
-                                color: '#333',
-                                marginBottom: '10px',
-                                textAlign: 'center',
-                            }}
-                        >
-                            {selectedMenu?.nombre}
-                        </h3>
-                        <p
-                            style={{
-                                fontSize: '16px',
-                                color: '#555',
-                                marginBottom: '15px',
-                                textAlign: 'center',
-                            }}
-                        >
-                            {selectedMenu?.descripcion}
-                        </p>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                width: '100%',
-                                marginBottom: '20px',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    fontSize: '20px',
-                                    fontWeight: 'bold',
-                                    color: '#007BFF',
-                                }}
-                            >
-                                ${selectedMenu?.precio.toFixed(2)}
-                            </p>
-                            <p
-                                style={{
-                                    fontSize: '16px',
-                                    color: '#888',
-                                    fontStyle: 'italic',
-                                }}
-                            >
-                                {categoryNames[selectedMenu?.categoria]}
-                            </p>
-                        </div>
+                        {selectedMenu?.nombre}
+                    </h3>
+                    <p
+                        style={{
+                            fontSize: '14px', // Tamaño más pequeño
+                            color: '#555',
+                            marginBottom: '12px',
+                        }}
+                    >
+                        {selectedMenu?.descripcion}
+                    </p>
+                    <p
+                        style={{
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            color: '#007BFF',
+                            marginBottom: '10px',
+                        }}
+                    >
+                        ${selectedMenu?.precio.toFixed(2)}
+                    </p>
+                    <p
+                        style={{
+                            fontSize: '14px',
+                            color: '#888',
+                            fontStyle: 'italic',
+                            marginBottom: '20px',
+                        }}
+                    >
+                        {categoryNames[selectedMenu?.categoria]}
+                    </p>
 
-                        {selectedMenu && (
+                    {selectedMenu && (
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    marginBottom: '10px',
+                                }}
+                            >
+                                <strong>Cantidad:</strong>
+                            </p>
                             <div
                                 style={{
-                                    width: '100%',
-                                    textAlign: 'center',
-                                    marginBottom: '20px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    marginBottom: '15px',
                                 }}
                             >
-                                <p
-                                    style={{
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        marginBottom: '10px',
-                                    }}
-                                >
-                                    <strong>Cantidad:</strong>
-                                </p>
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        gap: '15px',
-                                        marginBottom: '15px',
-                                    }}
-                                >
-                                    <Button
-                                        icon="pi pi-minus"
-                                        className="p-button-rounded p-button-outlined"
-                                        style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            padding: '0',
-                                            fontSize: '20px',
-                                        }}
-                                        onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] - 1)}
-                                        disabled={quantities[selectedMenu.id] <= 1}
-                                    />
-                                    <span
-                                        style={{
-                                            fontSize: '20px',
-                                            fontWeight: 'bold',
-                                        }}
-                                    >
-                                        {quantities[selectedMenu.id]}
-                                    </span>
-                                    <Button
-                                        icon="pi pi-plus"
-                                        className="p-button-rounded p-button-outlined"
-                                        style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            padding: '0',
-                                            fontSize: '20px',
-                                        }}
-                                        onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] + 1)}
-                                    />
-                                </div>
                                 <Button
-                                    label="Agregar al carrito"
-                                    icon="pi pi-cart-plus"
-                                    className="p-button-success p-mt-3 p-button-rounded"
+                                    icon="pi pi-minus"
+                                    className="p-button-rounded p-button-outlined"
                                     style={{
-                                        width: '100%',
-                                        padding: '12px 0',
-                                        fontSize: '18px',
+                                        width: '30px',
+                                        height: '30px', // Botones más pequeños
+                                        padding: '0',
+                                        fontSize: '16px',
+                                    }}
+                                    onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] - 1)}
+                                    disabled={quantities[selectedMenu.id] <= 1}
+                                />
+                                <span
+                                    style={{
+                                        fontSize: '16px', // Tamaño más pequeño
                                         fontWeight: 'bold',
                                     }}
-                                    onClick={() => addToCart(selectedMenu.id)}
+                                >
+                                    {quantities[selectedMenu.id]}
+                                </span>
+                                <Button
+                                    icon="pi pi-plus"
+                                    className="p-button-rounded p-button-outlined"
+                                    style={{
+                                        width: '30px',
+                                        height: '30px',
+                                        padding: '0',
+                                        fontSize: '16px',
+                                    }}
+                                    onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] + 1)}
                                 />
                             </div>
-                        )}
-                    </div>
+                            <Button
+                                label="Agregar al carrito"
+                                icon="pi pi-cart-plus"
+                                className="p-button-success p-mt-3 p-button-rounded"
+                                style={{
+                                    width: '70%', // Botón más pequeño
+                                    padding: '10px 0',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                }}
+                                onClick={() => addToCart(selectedMenu.id)}
+                            />
+                        </div>
+                    )}
                 </div>
             </Dialog>
         </>

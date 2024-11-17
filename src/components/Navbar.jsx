@@ -1,13 +1,13 @@
+// src/components/Navbar.js
 import { Link } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Menu } from 'primereact/menu';
-import 'primeflex/primeflex.css';  // Para flexbox, si no quieres usarlo, puedes quitarlo
-import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Tema actual
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
-function Navbar({ onLogout, cartItemsCount, userData, handleNavigation, userMenuItems, userMenu }) {
+function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userId }) {
     return (
         <nav
             style={{
@@ -22,9 +22,9 @@ function Navbar({ onLogout, cartItemsCount, userData, handleNavigation, userMenu
         >
             {/* Contenedor de la marca */}
             <Link to="/home" style={{ fontSize: '1.5rem', color: 'white' }}>
-                Mi Restaurante
+                COMIDAS MECHITA
             </Link>
-            
+
             {/* Contenedor de los botones centrados (Inicio, Menú, Contacto) */}
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
                 <Button
@@ -33,9 +33,9 @@ function Navbar({ onLogout, cartItemsCount, userData, handleNavigation, userMenu
                     onClick={() => handleNavigation('/home')}
                     style={{
                         minWidth: '120px',
-                        backgroundColor: 'transparent', // Fondo transparente
-                        color: '#fff', // Texto blanco
-                        borderColor: '#ffffff', // Borde blanco
+                        backgroundColor: 'transparent',
+                        color: '#fff',
+                        borderColor: '#ffffff',
                     }}
                 />
                 <Button
@@ -61,25 +61,35 @@ function Navbar({ onLogout, cartItemsCount, userData, handleNavigation, userMenu
                     }}
                 />
             </div>
-            
+
             {/* Contenedor de los botones del carrito y usuario alineados a la derecha */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {/* Botón de carrito */}
                 <Link to="/carrito">
-                    <Button 
-                        icon="pi pi-shopping-cart" 
+                    <Button
+                        icon="pi pi-shopping-cart"
                         outlined
                         style={{
-                            backgroundColor: 'transparent', // Fondo transparente
-                            color: '#fff', // Texto blanco
-                            borderColor: '#ffffff', // Borde blanco
-                        }} 
+                            backgroundColor: 'transparent',
+                            color: '#fff',
+                            borderColor: '#ffffff',
+                        }}
                     />
                     {cartItemsCount > 0 && (
                         <Badge value={cartItemsCount} className="p-ml-2" />
                     )}
                 </Link>
-                
+                <Link to="/pedidos">
+                    <Button
+                        icon="pi pi-clipboard"
+                        outlined
+                        style={{
+                            backgroundColor: 'transparent',
+                            color: '#fff',
+                            borderColor: '#ffffff',
+                        }}
+                    />
+                </Link>
                 {/* Botón de usuario */}
                 <Button
                     icon="pi pi-user"
@@ -88,9 +98,9 @@ function Navbar({ onLogout, cartItemsCount, userData, handleNavigation, userMenu
                     aria-controls="user-menu"
                     aria-haspopup
                     style={{
-                        backgroundColor: 'transparent', // Fondo transparente
-                        color: '#fff', // Texto blanco
-                        borderColor: '#ffffff', // Borde blanco
+                        backgroundColor: 'transparent',
+                        color: '#fff',
+                        borderColor: '#ffffff',
                     }}
                 />
                 <Menu
