@@ -1,94 +1,84 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from 'primereact/button';
-import { Menu } from 'primereact/menu';
-import { useRef } from 'react';
-import '../styles/Layout.css';
+import { useNavigate } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
+import Navbar from './Navbar'; 
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
 function Layout({ children, onLogout, cartItemsCount, userData }) {
     const userMenu = useRef(null);
     const navigate = useNavigate();
+    const [isAdmin, setIsAdmin] = useState(false);
 
+    // Verificar si el usuario es administrador
+    useEffect(() => {
+        async function verificarAdmin() {
+            try {
+                const response = await fetch(`http://localhost:8080/usuarios/${userData?.id}/esAdmin`);
+                if (!response.ok) {
+                    throw new Error('Error al verificar si el usuario es admin');
+                }
+                const isAdmin = await response.json();
+                setIsAdmin(isAdmin);
+            } catch (error) {
+                console.error('Error verificando si el usuario es admin:', error);
+            }
+        }
+        if (userData) {
+            verificarAdmin();
+        }
+    }, [userData]);
+
+    // Opciones del menú de usuario
     const userMenuItems = [
         {
             label: 'Ver Perfil',
             icon: 'pi pi-user',
-            command: (e) => {
-                navigate('/perfil');
-            }
+            command: () => navigate('/perfil'),
         },
         {
             label: 'Configurar Cuenta',
             icon: 'pi pi-cog',
-            command: (e) => {
-                navigate('/configuracion');
-            }
+            command: () => navigate('/configuracion'),
         },
+        ...(isAdmin ? [
+            {
+                label: 'Administrar',
+                icon: 'pi pi-cog',
+                command: () => navigate('/admin'),
+            },
+        ] : []),
         {
-            label: 'Ver Carrito',
-            icon: 'pi pi-shopping-cart',
-            template: (item) => (
-                <button 
-                    className="cart-button"
-                    onClick={() => {
-                        navigate('/carrito');
-                    }}
-                >
-                    <i className="pi pi-shopping-cart menu-item-icon"></i>
-                    <span>Ver Carrito</span>
-                    {cartItemsCount > 0 && (
-                        <span className="cart-badge">{cartItemsCount}</span>
-                    )}
-                </button>
-            ),
-            command: (e) => {
-                navigate('/carrito');
-            }
-        },
-        {
-            separator: true
+            separator: true,
         },
         {
             label: 'Cerrar Sesión',
             icon: 'pi pi-sign-out',
-            command: (e) => {
-                onLogout();
-            }
-        }
+            command: () => onLogout(),
+        },
     ];
 
+    // Función para redirigir a las rutas de menú
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
+
     return (
-        <div className="layout-container">
-            <nav className="navbar">
-                <div className="nav-brand">
-                    <Link to="/home">Logo</Link>
-                </div>
-                <div className="nav-links">
-                    <Link to="/home">Inicio</Link>
-                    <Link to="/menu">Menu</Link>
-                    <Link to="/contacto">Contacto</Link>
-                </div>
-                <div className="nav-actions">
-                    <Button
-                        icon="pi pi-user"
-                        className="p-button-rounded p-button-text"
-                        onClick={(e) => userMenu.current.toggle(e)}
-                        aria-controls="user-menu"
-                        aria-haspopup
-                    />
-                    <Menu
-                        id="user-menu"
-                        ref={userMenu}
-                        model={userMenuItems}
-                        popup
-                        className="user-menu"
-                        dismissable={true}
-                        autoZIndex
-                    />
-                </div>
-            </nav>
-            <main className="main-content">
-                {children}
-            </main>
+        <div className="layout-container" style={{ backgroundColor: "#f8f8f8" }}>
+            {/* Navbar con botones de usuario y carrito */}
+            <Navbar 
+                onLogout={onLogout} 
+                cartItemsCount={cartItemsCount} 
+                userData={userData}
+                handleNavigation={handleNavigation} 
+                userMenuItems={userMenuItems} 
+                userMenu={userMenu}
+            />
+
+            {/* Contenedor de contenido principal */}
+            <div className="p-mb-4">
+                <main className="main-content">{children}</main>
+            </div>
         </div>
     );
 }

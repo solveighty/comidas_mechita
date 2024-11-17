@@ -6,7 +6,6 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useRef } from 'react';
 import '../styles/Settings.css';
-import { confirmDialog } from 'primereact/confirmdialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 
 function Settings({ userData }) {

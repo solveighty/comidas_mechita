@@ -4,7 +4,6 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import '../styles/Menu.css';
 
 function Menu({ userData }) {
     const [menus, setMenus] = useState([]);
@@ -45,10 +44,6 @@ function Menu({ userData }) {
 
         fetchMenus();
     }, []);
-
-    useEffect(() => {
-        console.log('userData en Menu:', userData);
-    }, [userData]);
 
     const handleQuantityChange = (menuId, value) => {
         setQuantities(prev => ({
@@ -120,14 +115,14 @@ function Menu({ userData }) {
 
     const renderMenuItem = (menu) => (
         <div className="menu-item" key={menu.id}>
-            <Card className="menu-card" onClick={() => openDialog(menu)}>
+            <Card onClick={() => openDialog(menu)}>
                 <img 
                     src={menu.imagen} 
                     alt={menu.nombre} 
                     className="menu-image"
                     onError={(e) => {
-                        e.target.onerror = null; // Prevenir loop infinito
-                        e.target.style.display = 'none'; // Ocultar imagen si falla
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
                     }}
                 />
                 <div className="menu-content">
@@ -143,7 +138,7 @@ function Menu({ userData }) {
                         <div className="quantity-controls">
                             <Button 
                                 icon="pi pi-minus" 
-                                className="p-button-rounded"
+                                className="p-button-rounded p-button-outlined"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleQuantityChange(menu.id, Math.max(1, quantities[menu.id] - 1));
@@ -161,7 +156,7 @@ function Menu({ userData }) {
                             />
                             <Button 
                                 icon="pi pi-plus" 
-                                className="p-button-rounded"
+                                className="p-button-rounded p-button-outlined"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleQuantityChange(menu.id, Math.min(10, quantities[menu.id] + 1));
@@ -176,7 +171,7 @@ function Menu({ userData }) {
                                 e.stopPropagation();
                                 handleAddToCart(menu.id);
                             }}
-                            className="add-to-cart-button"
+                            className="p-button-outlined"
                         />
                     </div>
                 </div>
@@ -186,7 +181,7 @@ function Menu({ userData }) {
 
     const addToCart = async (menuId) => {
         try {
-            const quantity = quantities[menuId] || 1; // Usar la cantidad seleccionada o 1 por defecto
+            const quantity = quantities[menuId] || 1;
 
             const cartData = {
                 usuarioId: userData.id,
@@ -213,7 +208,6 @@ function Menu({ userData }) {
                 life: 3000
             });
 
-            // Resetear la cantidad después de agregar al carrito
             setQuantities(prev => ({
                 ...prev,
                 [menuId]: 1
@@ -264,8 +258,8 @@ function Menu({ userData }) {
                             alt={selectedMenu.nombre} 
                             className="dialog-image"
                             onError={(e) => {
-                                e.target.onerror = null; // Prevenir loop infinito
-                                e.target.style.display = 'none'; // Ocultar imagen si falla
+                                e.target.onerror = null;
+                                e.target.style.display = 'none';
                             }}
                         />
                         <div className="dialog-details">
@@ -282,7 +276,7 @@ function Menu({ userData }) {
                                 <div className="quantity-controls">
                                     <Button 
                                         icon="pi pi-minus" 
-                                        className="p-button-rounded"
+                                        className="p-button-rounded p-button-outlined"
                                         onClick={() => handleQuantityChange(
                                             selectedMenu.id, 
                                             Math.max(1, quantities[selectedMenu.id] - 1)
@@ -295,11 +289,12 @@ function Menu({ userData }) {
                                         showButtons={false}
                                         min={1}
                                         max={10}
+                                        inputClassName="quantity-input"
                                         readOnly
                                     />
                                     <Button 
                                         icon="pi pi-plus" 
-                                        className="p-button-rounded"
+                                        className="p-button-rounded p-button-outlined"
                                         onClick={() => handleQuantityChange(
                                             selectedMenu.id, 
                                             Math.min(10, quantities[selectedMenu.id] + 1)
@@ -310,8 +305,11 @@ function Menu({ userData }) {
                                 <Button 
                                     label="Agregar al Carrito" 
                                     icon="pi pi-shopping-cart"
-                                    onClick={() => addToCart(selectedMenu.id)}
-                                    className="add-to-cart-button"
+                                    onClick={() => {
+                                        handleAddToCart(selectedMenu.id);
+                                        setDialogVisible(false);
+                                    }}
+                                    className="p-button-outlined"
                                 />
                             </div>
                         </div>

@@ -5,7 +5,6 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import '../styles/Home.css';
 
 function Home({ userData }) {
     const toast = useRef(null);
@@ -26,7 +25,7 @@ function Home({ userData }) {
             try {
                 const response = await fetch('http://localhost:8080/menu');
                 const data = await response.json();
-                
+
                 if (data && data.length > 0) {
                     const shuffled = data.sort(() => 0.5 - Math.random());
                     const selected = shuffled.slice(0, 9);
@@ -61,10 +60,10 @@ function Home({ userData }) {
             if (!response.ok) {
                 throw new Error('Error al verificar el carrito');
             }
-            
+
             const users = await response.json();
             const currentUser = users.find(user => user.id === userData.id);
-            
+
             if (currentUser?.carrito?.items) {
                 return currentUser.carrito.items.some(item => item.menu.id === menuId);
             }
@@ -103,7 +102,7 @@ function Home({ userData }) {
 
         try {
             const quantity = quantities[menuId] || 1;
-            
+
             console.log('Enviando datos:', {
                 usuarioId: userData.id,
                 menuId: menuId,
@@ -150,18 +149,18 @@ function Home({ userData }) {
     };
 
     const quantityTemplate = (menuId, currentQuantity, onQuantityChange) => (
-        <div className="quantity-controls">
-            <Button 
-                icon="pi pi-minus" 
-                className="p-button-rounded"
+        <div className="p-d-flex p-ai-center">
+            <Button
+                icon="pi pi-minus"
+                className="p-button-rounded p-mr-2"
                 onClick={(e) => {
                     e.stopPropagation();
                     onQuantityChange(menuId, Math.max(1, currentQuantity - 1));
                 }}
                 disabled={currentQuantity <= 1}
             />
-            <InputNumber 
-                value={currentQuantity} 
+            <InputNumber
+                value={currentQuantity}
                 onValueChange={(e) => onQuantityChange(menuId, e.value)}
                 showButtons={false}
                 min={1}
@@ -169,9 +168,9 @@ function Home({ userData }) {
                 inputClassName="quantity-input"
                 readOnly
             />
-            <Button 
-                icon="pi pi-plus" 
-                className="p-button-rounded"
+            <Button
+                icon="pi pi-plus"
+                className="p-button-rounded p-ml-2"
                 onClick={(e) => {
                     e.stopPropagation();
                     onQuantityChange(menuId, Math.min(10, currentQuantity + 1));
@@ -183,111 +182,315 @@ function Home({ userData }) {
 
     const menuTemplate = (menu) => {
         return (
-            <div className="carousel-item" onClick={() => openDialog(menu)}>
-                <Card className="menu-card">
-                    <img 
-                        src={menu.imagen} 
-                        alt={menu.nombre} 
-                        className="menu-image"
-                        onError={(e) => e.target.src = 'https://via.placeholder.com/300'}
-                    />
-                    <div className="menu-content">
-                        <h3 className="menu-title">{menu.nombre}</h3>
-                        <p className="menu-description">{menu.descripcion}</p>
-                        <div className="menu-details">
-                            <span className="menu-price">${menu.precio.toFixed(2)}</span>
-                            <span className="menu-category">
-                                {categoryNames[menu.categoria] || menu.categoria}
-                            </span>
-                        </div>
-                        <div className="add-to-cart-section" onClick={e => e.stopPropagation()}>
-                            {quantityTemplate(menu.id, quantities[menu.id], handleQuantityChange)}
-                            <Button 
-                                label="Agregar al Carrito" 
-                                icon="pi pi-shopping-cart"
-                                onClick={(e) => addToCart(menu.id)}
-                                className="add-to-cart-button"
-                            />
-                        </div>
+            <Card
+                className="menu-card p-mr-3 p-shadow-2"
+                style={{
+                    height: '450px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    marginBottom: '20px',
+                    maxWidth: '300px',
+                    marginRight: '15px',
+                    marginLeft: '15px'
+                }}
+                onClick={() => openDialog(menu)}
+            >
+                <img
+                    src={menu.imagen}
+                    alt={menu.nombre}
+                    className="menu-image"
+                    onError={(e) => e.target.src = 'https://via.placeholder.com/300'}
+                    style={{
+                        width: '100%',
+                        height: 'auto',
+                        maxHeight: '200px',
+                        objectFit: 'cover',
+                        flexShrink: 0
+                    }}
+                />
+                <div
+                    className="menu-content"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        padding: '15px',
+                        flexGrow: 1
+                    }}
+                >
+                    <h3
+                        className="menu-title"
+                        style={{
+                            margin: '10px 0',
+                            fontSize: '16px'
+                        }}
+                    >
+                        {menu.nombre}
+                    </h3>
+                    <p
+                        className="menu-description"
+                        style={{
+                            fontSize: '14px',
+                            color: '#555',
+                            flexGrow: 1,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 3,
+                        }}
+                    >
+                        {menu.descripcion}
+                    </p>
+                    <div
+                        className="menu-details"
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '10px'
+                        }}
+                    >
+                        <span
+                            className="menu-price"
+                            style={{
+                                fontSize: '18px',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            ${menu.precio.toFixed(2)}
+                        </span>
+                        <span
+                            className="menu-category"
+                            style={{
+                                fontSize: '14px',
+                                color: '#888'
+                            }}
+                        >
+                            {categoryNames[menu.categoria] || menu.categoria}
+                        </span>
                     </div>
-                </Card>
-            </div>
+                </div>
+            </Card>
         );
     };
 
-    return (
-        <div className="home-container">
-            <Toast ref={toast} />
-            <div className="welcome-section">
-                <h1>Bienvenidos a Nuestro Restaurante</h1>
-                <p>Descubre nuestra selección de platos destacados</p>
-            </div>
+    const responsiveOptions = [
+        {
+            breakpoint: '1024px',
+            numVisible: 3,
+            size: 'small',
+            numScroll: 1
+        },
+        {
+            breakpoint: '768px',
+            numVisible: 2,
+            size: 'small',
+            numScroll: 1
+        },
+        {
+            breakpoint: '560px',
+            numVisible: 1,
+            size: 'small',
+            numScroll: 1
+        }
+    ];
 
-            <div className="carousel-section">
+    return (
+        <>
+            <Toast ref={toast} />
+            <div style={{ marginBottom: '20px' }}>
                 <Carousel
                     value={featuredMenus}
-                    numVisible={3}
-                    numScroll={3}
-                    className="custom-carousel"
                     itemTemplate={menuTemplate}
-                    autoplayInterval={3000}
+                    numVisible={3}
+                    numScroll={1}
+                    responsiveOptions={responsiveOptions}
                     circular
                     autoplay
-                    responsiveOptions={[
-                        {
-                            breakpoint: '1024px',
-                            numVisible: 2,
-                            numScroll: 2
-                        },
-                        {
-                            breakpoint: '600px',
-                            numVisible: 1,
-                            numScroll: 1
-                        }
-                    ]}
+                    autoplayInterval={3000}
+                    style={{
+                        marginBottom: '20px',
+                    }}
                 />
             </div>
 
-            {selectedMenu && (
-                <Dialog 
-                    visible={dialogVisible} 
-                    onHide={() => setDialogVisible(false)}
-                    header={selectedMenu.nombre}
-                    modal
-                    className="menu-dialog"
-                    style={{ width: '90%', maxWidth: '800px' }}
+            <Dialog
+                header="Detalles del plato"
+                visible={dialogVisible}
+                style={{
+                    width: '70vw',
+                    padding: '20px',
+                    borderRadius: '10px',
+                    backgroundColor: '#f5f5f5',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                }}
+                onHide={() => setDialogVisible(false)}
+                modal
+                className="p-d-flex p-ai-center"
+                baseZIndex={1000} // Asegura que el fondo esté detrás del modal
+                draggable={false} // Desactiva la capacidad de mover el Dialog con el mouse
+            >
+                <div
+                    style={{
+                        background: '#fff',
+                        borderRadius: '15px',
+                        padding: '30px',
+                        marginTop: '10px',
+                        boxShadow: '0px 4px 20px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s ease',
+                    }}
                 >
-                    <div className="menu-dialog-content">
-                        <img 
-                            src={selectedMenu.imagen} 
-                            alt={selectedMenu.nombre} 
-                            className="dialog-image"
-                            onError={(e) => e.target.src = 'https://via.placeholder.com/300'}
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <img
+                            src={selectedMenu?.imagen}
+                            alt={selectedMenu?.nombre}
+                            className="menu-image"
+                            style={{
+                                width: '100%',
+                                height: 'auto',
+                                maxHeight: '400px',
+                                objectFit: 'cover',
+                                borderRadius: '10px',
+                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                                marginBottom: '20px',
+                                transition: 'transform 0.3s ease',
+                            }}
+                            onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+                            onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
                         />
-                        <div className="dialog-details">
-                            <p className="dialog-description">{selectedMenu.descripcion}</p>
-                            <div className="dialog-info">
-                                <span className="dialog-price">
-                                    ${selectedMenu.precio.toFixed(2)}
-                                </span>
-                                <span className="dialog-category">
-                                    {categoryNames[selectedMenu.categoria] || selectedMenu.categoria}
-                                </span>
-                            </div>
-                            <div className="dialog-cart-section">
-                                {quantityTemplate(selectedMenu.id, quantities[selectedMenu.id], handleQuantityChange)}
-                                <Button 
-                                    label="Agregar al Carrito" 
-                                    icon="pi pi-shopping-cart"
-                                    onClick={(e) => addToCart(selectedMenu.id)}
-                                    className="p-button-rounded"
+                        <h3
+                            style={{
+                                fontSize: '24px',
+                                fontWeight: 'bold',
+                                color: '#333',
+                                marginBottom: '10px',
+                                textAlign: 'center',
+                            }}
+                        >
+                            {selectedMenu?.nombre}
+                        </h3>
+                        <p
+                            style={{
+                                fontSize: '16px',
+                                color: '#555',
+                                marginBottom: '15px',
+                                textAlign: 'center',
+                            }}
+                        >
+                            {selectedMenu?.descripcion}
+                        </p>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                                marginBottom: '20px',
+                            }}
+                        >
+                            <p
+                                style={{
+                                    fontSize: '20px',
+                                    fontWeight: 'bold',
+                                    color: '#007BFF',
+                                }}
+                            >
+                                ${selectedMenu?.precio.toFixed(2)}
+                            </p>
+                            <p
+                                style={{
+                                    fontSize: '16px',
+                                    color: '#888',
+                                    fontStyle: 'italic',
+                                }}
+                            >
+                                {categoryNames[selectedMenu?.categoria]}
+                            </p>
+                        </div>
+
+                        {selectedMenu && (
+                            <div
+                                style={{
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    marginBottom: '20px',
+                                }}
+                            >
+                                <p
+                                    style={{
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        marginBottom: '10px',
+                                    }}
+                                >
+                                    <strong>Cantidad:</strong>
+                                </p>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        gap: '15px',
+                                        marginBottom: '15px',
+                                    }}
+                                >
+                                    <Button
+                                        icon="pi pi-minus"
+                                        className="p-button-rounded p-button-outlined"
+                                        style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            padding: '0',
+                                            fontSize: '20px',
+                                        }}
+                                        onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] - 1)}
+                                        disabled={quantities[selectedMenu.id] <= 1}
+                                    />
+                                    <span
+                                        style={{
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {quantities[selectedMenu.id]}
+                                    </span>
+                                    <Button
+                                        icon="pi pi-plus"
+                                        className="p-button-rounded p-button-outlined"
+                                        style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            padding: '0',
+                                            fontSize: '20px',
+                                        }}
+                                        onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] + 1)}
+                                    />
+                                </div>
+                                <Button
+                                    label="Agregar al carrito"
+                                    icon="pi pi-cart-plus"
+                                    className="p-button-success p-mt-3 p-button-rounded"
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 0',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold',
+                                    }}
+                                    onClick={() => addToCart(selectedMenu.id)}
                                 />
                             </div>
-                        </div>
+                        )}
                     </div>
-                </Dialog>
-            )}
-        </div>
+                </div>
+            </Dialog>
+        </>
     );
 }
 

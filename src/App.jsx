@@ -10,6 +10,7 @@ import Contact from './components/Contact'
 import Profile from './components/Profile'
 import Settings from './components/Settings'
 import Cart from './components/Cart'
+import AdminPage from './components/AdminPage'
 
 
 function App() {
@@ -33,80 +34,93 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/registro" element={<Register />} />
-        
+
         {isAuthenticated ? (
           <>
-            <Route 
-              path="/" 
+            <Route
+              path="/"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Home userData={userData} />
                 </Layout>
-              } 
+              }
             />
-            <Route 
-              path="/menu" 
+            <Route
+              path="/menu"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Menu userData={userData} />
                 </Layout>
-              } 
+              }
             />
-            <Route 
-              path="/contacto" 
+            <Route
+              path="/contacto"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Contact />
                 </Layout>
-              } 
+              }
             />
-            <Route 
-              path="/perfil" 
+            <Route
+              path="/perfil"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Profile userData={userData} />
                 </Layout>
-              } 
+              }
             />
-            <Route 
-              path="/configuracion" 
+            <Route
+              path="/configuracion"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Settings userData={userData} />
                 </Layout>
-              } 
+              }
             />
-            <Route 
-              path="/carrito" 
+            <Route
+              path="/admin"
               element={
-                <Layout 
-                  onLogout={handleLogout} 
-                  cartItemsCount={cartItems.length} 
+                isAuthenticated ? (
+                  <Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}>
+                    <AdminPage userData={userData} />
+                  </Layout>
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+
+            <Route
+              path="/carrito"
+              element={
+                <Layout
+                  onLogout={handleLogout}
+                  cartItemsCount={cartItems.length}
                   userData={userData}
                 >
                   <Cart userData={userData} />
                 </Layout>
-              } 
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
