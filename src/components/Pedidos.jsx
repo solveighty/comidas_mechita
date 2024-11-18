@@ -34,18 +34,18 @@ function Pedidos({ userId }) {
   // Función para calcular el total de cada pedido
   const calcularTotal = (detalles) => {
     return detalles.reduce((total, detalle) => {
-      return total + detalle.precio;
-    }, 0).toFixed(2); // Solo se suman los precios, no se multiplica por cantidad
+      return total + detalle.precio * detalle.cantidad; // Multiplicar por cantidad
+    }, 0).toFixed(2); // Total con cantidades
   };
 
   // Función para obtener el ícono y texto del estado
   const getEstadoIcon = (estado) => {
     switch (estado) {
-      case 'En proceso':
+      case 'EN_PROCESO':
         return { icon: <PiTruck style={{ color: 'orange' }} />, text: 'En proceso' };
-      case 'En tránsito':
+      case 'EN_TRÁNSITO':
         return { icon: <PiTruck style={{ color: 'blue' }} />, text: 'En tránsito' };
-      case 'Entregado':
+      case 'ENTREGADO':
         return { icon: <PiTruck style={{ color: 'green' }} />, text: 'Entregado' };
       default:
         return { icon: <PiTruck style={{ color: 'gray' }} />, text: 'Estado desconocido' };
@@ -55,14 +55,16 @@ function Pedidos({ userId }) {
   // Transformar los pedidos a nodos
   const transformarPedidosANodos = (pedidos) => {
     return pedidos.map((pedido) => {
-      const estado = pedido.estado || 'En proceso';
-      const total = calcularTotal(pedido.detalles); // Calcular total de la compra sumando los precios
+      const estado = pedido.estadoCompra || 'EN_PROCESO'; // Estado del pedido
+      const total = calcularTotal(pedido.detalles); // Calcular total del pedido
+
       return {
         key: pedido.id,
         data: {
           fechaCompra: new Date(pedido.fechaCompra).toLocaleString(),
           estado: getEstadoIcon(estado),
           total, // Asignamos el total calculado
+          usuario: `${pedido.usuario.nombre} (${pedido.usuario.usuario})`,
         },
         children: pedido.detalles.map((detalle) => ({
           key: detalle.id,
@@ -96,6 +98,7 @@ function Pedidos({ userId }) {
             );
           }}
         />
+        <Column field="usuario" header="Usuario" />
         <Column field="total" header="Total" body={(rowData) => <span>${rowData.data.total}</span>} />
         <Column field="nombreMenu" header="Nombre del Plato" />
         <Column field="cantidad" header="Cantidad" />
