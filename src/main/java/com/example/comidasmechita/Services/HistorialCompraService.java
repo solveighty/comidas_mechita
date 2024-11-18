@@ -54,4 +54,17 @@ public class HistorialCompraService {
             throw new RuntimeException("Acceso denegado. Solo los administradores pueden ver el historial completo.");
         }
     }
+
+    @Transactional
+    public HistorialCompraEntity actualizarEstadoCompra(Long userId, Long historialId, HistorialCompraEntity.EstadoCompra nuevoEstado) {
+        if (!usuarioService.isAdmin(userId)) {
+            throw new RuntimeException("Acceso denegado. Solo los administradores pueden cambiar el estado de una compra.");
+        }
+
+        HistorialCompraEntity historialCompra = historialCompraRepository.findById(historialId)
+                .orElseThrow(() -> new RuntimeException("Historial de compra no encontrado"));
+
+        historialCompra.setEstadoCompra(nuevoEstado);
+        return historialCompraRepository.save(historialCompra);
+    }
 }

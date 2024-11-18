@@ -84,4 +84,10 @@ public class UsuarioController {
         return usuarioOpt.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping("/{id}/esAdmin")
+    public ResponseEntity<Boolean> esAdmin(@PathVariable Long id) {
+        boolean isAdmin = usuarioService.isAdmin(id);
+        return ResponseEntity.ok(isAdmin);
+    }
 }

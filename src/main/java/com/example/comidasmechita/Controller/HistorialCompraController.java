@@ -29,4 +29,19 @@ public class HistorialCompraController {
             return ResponseEntity.status(403).build(); // Retorna 403 si no tiene permisos
         }
     }
+
+    @PutMapping("/actualizar-estado/{historialId}")
+    public ResponseEntity<HistorialCompraEntity> actualizarEstadoCompra(
+            @RequestParam Long userId,
+            @PathVariable Long historialId,
+            @RequestParam HistorialCompraEntity.EstadoCompra nuevoEstado) {
+        try {
+            HistorialCompraEntity actualizado = historialCompraService.actualizarEstadoCompra(userId, historialId, nuevoEstado);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(null); // Acceso denegado
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null); // Error interno
+        }
+    }
 }

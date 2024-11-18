@@ -25,4 +25,13 @@ public class HistorialCompraEntity {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "historial_id")
     private List<DetalleCompraEntity> detalles;
+
+    @Enumerated(EnumType.STRING)
+    public EstadoCompra estadoCompra = EstadoCompra.EN_PROCESO;
+
+    public enum EstadoCompra {
+        EN_PROCESO,
+        EN_TRANSITO,
+        ENTREGADO
+    }
 }
