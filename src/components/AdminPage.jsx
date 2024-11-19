@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Menubar } from 'primereact/menubar';
 import { Dialog } from 'primereact/dialog';
+import { Toast } from 'primereact/toast';
+import AddMenu from './AddMenu';
 import Pedido from './Pedido';
+import DeleteMenu from './DeleteMenu';
+import UpdateMenu from './UpdateMenu';
+
 
 export default function AdminMenu({ userData }) {
     const [displayAddDialog, setDisplayAddDialog] = useState(false);
     const [displayUpdateDialog, setDisplayUpdateDialog] = useState(false);
     const [displayDeleteDialog, setDisplayDeleteDialog] = useState(false);
     const [displayOrdersDialog, setDisplayOrdersDialog] = useState(false); // Nuevo estado para los pedidos
+    const toast = useRef(null);
 
     const openDialog = (dialogType) => {
         switch (dialogType) {
@@ -21,7 +27,7 @@ export default function AdminMenu({ userData }) {
                 setDisplayDeleteDialog(true);
                 break;
             case 'orders':
-                setDisplayOrdersDialog(true); // Mostrar el diálogo de pedidos
+                setDisplayOrdersDialog(true); 
                 break;
             default:
                 break;
@@ -60,43 +66,45 @@ export default function AdminMenu({ userData }) {
 
     return (
         <div className="admin-container">
+            <Toast ref={toast} />
             <Menubar model={items} />
 
             {/* Diálogos */}
-            <Dialog 
-                header="Agregar Menú" 
-                visible={displayAddDialog} 
+            <Dialog
+                header="Agregar Menú"
+                visible={displayAddDialog}
                 onHide={closeDialog}
                 draggable={false}
             >
                 {/* Aquí va el contenido del diálogo de agregar */}
-                <p>Contenido para agregar menú</p>
+
+                <AddMenu userId={userData.id} toast={toast} onClose={closeDialog} />
             </Dialog>
 
-            <Dialog 
-                header="Actualizar Menú" 
-                visible={displayUpdateDialog} 
+            <Dialog
+                header="Actualizar Menú"
+                visible={displayUpdateDialog}
                 onHide={closeDialog}
                 draggable={false}
             >
                 {/* Aquí va el contenido del diálogo de actualizar */}
-                <p>Contenido para actualizar menú</p>
+                <UpdateMenu userId={userData.id} toast={toast} onClose={closeDialog} />
             </Dialog>
 
-            <Dialog 
-                header="Eliminar Menú" 
-                visible={displayDeleteDialog} 
+            <Dialog
+                header="Eliminar Menú"
+                visible={displayDeleteDialog}
                 onHide={closeDialog}
                 draggable={false}
             >
                 {/* Aquí va el contenido del diálogo de eliminar */}
-                <p>Contenido para eliminar menú</p>
+                <DeleteMenu userId={userData.id} toast={toast} onClose={closeDialog} />
             </Dialog>
 
             {/* Diálogo de Pedidos */}
-            <Dialog 
-                header="Ver Pedidos" 
-                visible={displayOrdersDialog} 
+            <Dialog
+                header="Ver Pedidos"
+                visible={displayOrdersDialog}
                 onHide={closeDialog}
                 style={{ width: '50vw' }} // Puedes ajustar el tamaño del diálogo
                 draggable={false}

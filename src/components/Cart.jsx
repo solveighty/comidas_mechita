@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Cart.css';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+
 
 function Cart({ userData }) {
     const [cartItems, setCartItems] = useState([]);

@@ -43,7 +43,7 @@ function Pedidos({ userId }) {
     switch (estado) {
       case 'EN_PROCESO':
         return { icon: <PiTruck style={{ color: 'orange' }} />, text: 'En proceso' };
-      case 'EN_TRÁNSITO':
+      case 'EN_TRANSITO':
         return { icon: <PiTruck style={{ color: 'blue' }} />, text: 'En tránsito' };
       case 'ENTREGADO':
         return { icon: <PiTruck style={{ color: 'green' }} />, text: 'Entregado' };
