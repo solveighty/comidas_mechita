@@ -2,6 +2,7 @@ package com.example.comidasmechita.Controller;
 
 import com.example.comidasmechita.Entity.HistorialCompraEntity;
 import com.example.comidasmechita.Services.HistorialCompraService;
+import com.example.comidasmechita.Services.NotificacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,9 @@ import java.util.List;
 public class HistorialCompraController {
     @Autowired
     private HistorialCompraService historialCompraService;
+
+    @Autowired
+    private NotificacionService notificacionService;
 
     @GetMapping("/{usuarioId}")
     public ResponseEntity<List<HistorialCompraEntity>> getHistorialByUsuarioId(@PathVariable Long usuarioId) {
@@ -36,7 +40,13 @@ public class HistorialCompraController {
             @PathVariable Long historialId,
             @RequestParam HistorialCompraEntity.EstadoCompra nuevoEstado) {
         try {
+            // Cambiar el estado de la compra
             HistorialCompraEntity actualizado = historialCompraService.actualizarEstadoCompra(userId, historialId, nuevoEstado);
+
+            // Notificar al usuario
+            String mensaje = "El estado de tu pedido con ID: " + historialId + " ha cambiado a: " + nuevoEstado;
+            notificacionService.notificarUsuario(actualizado.getUsuario(), mensaje);
+
             return ResponseEntity.ok(actualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.status(403).body(null); // Acceso denegado
