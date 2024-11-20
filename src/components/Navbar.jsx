@@ -1,4 +1,4 @@
-// src/components/Navbar.js
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
@@ -7,7 +7,9 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
-function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userId }) {
+
+
+function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userData, unreadCount  }) {
     return (
         <nav
             style={{
@@ -64,7 +66,22 @@ function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, use
 
             {/* Contenedor de los botones del carrito y usuario alineados a la derecha */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {/* Botón de carrito */}
+                {/* Pasamos userData al componente Notificaciones */}
+                <Link to="/notificaciones">
+                    <Button
+                        icon="pi pi-bell"
+                        outlined
+                        style={{
+                            backgroundColor: 'transparent',
+                            color: '#fff',
+                            borderColor: '#ffffff',
+                        }}
+                    />
+                    {unreadCount > 0 && (
+                        <Badge value={unreadCount} className="p-ml-2" severity="danger" />
+                    )}
+                </Link>
+
                 <Link to="/carrito">
                     <Button
                         icon="pi pi-shopping-cart"
