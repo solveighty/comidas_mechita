@@ -1,6 +1,8 @@
 package com.example.comidasmechita.Services;
 
+import com.example.comidasmechita.Entity.CarritoEntity;
 import com.example.comidasmechita.Entity.UsuarioEntity;
+import com.example.comidasmechita.Repository.CarritoRepository;
 import com.example.comidasmechita.Repository.UsuarioRepository;
 import com.example.comidasmechita.Security.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
+
 
     public List<UsuarioEntity> getAllUsuarios() {
         return usuarioRepository.findAll();
@@ -34,11 +37,22 @@ public class UsuarioService {
             // Encriptar la contraseña antes de guardarla
             String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
             usuario.setContrasena(encodedPassword);
+
+            // Inicializar el carrito si no está presente
+            if (usuario.getCarrito() == null) {
+                // Crear un nuevo carrito si no existe
+                CarritoEntity carrito = new CarritoEntity();
+                carrito.setUsuario(usuario); // Establecer la relación inversa con el usuario
+                usuario.setCarrito(carrito); // Asocia el carrito al usuario
+            }
+
+            // Guardar el usuario (con el carrito automáticamente si hay cascada configurada)
             return usuarioRepository.save(usuario);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error al encriptar la contraseña", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar el usuario", e);
         }
     }
+
 
     public void deleteUsuario(Long id) {
         Optional<UsuarioEntity> usuario = usuarioRepository.findById(id);

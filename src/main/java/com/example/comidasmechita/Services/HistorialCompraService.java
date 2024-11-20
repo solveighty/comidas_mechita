@@ -20,8 +20,11 @@ public class HistorialCompraService {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private NotificacionService notificacionService;
+
     @Transactional
-    public void registrarCompra(CarritoEntity carrito) {
+    public HistorialCompraEntity registrarCompra(CarritoEntity carrito) {
         // Crear un nuevo historial de compra
         HistorialCompraEntity historialCompra = new HistorialCompraEntity();
         historialCompra.setUsuario(carrito.getUsuario());
@@ -39,8 +42,11 @@ public class HistorialCompraService {
         historialCompra.setDetalles(detalles);
 
         // Guardar el historial de compra
-        historialCompraRepository.save(historialCompra);
+        historialCompra = historialCompraRepository.save(historialCompra);
+
+        return historialCompra;  // Retornar el objeto historialCompra con su id generado
     }
+
 
     // Nuevo método para buscar el historial por usuario
     public List<HistorialCompraEntity> findByUsuarioId(Long usuarioId) {
@@ -66,5 +72,18 @@ public class HistorialCompraService {
 
         historialCompra.setEstadoCompra(nuevoEstado);
         return historialCompraRepository.save(historialCompra);
+    }
+
+    public void cambiarEstadoCompra(Long historialCompraId, HistorialCompraEntity.EstadoCompra nuevoEstado) {
+        HistorialCompraEntity historialCompra = historialCompraRepository.findById(historialCompraId)
+                .orElseThrow(() -> new RuntimeException("Historial de compra no encontrado"));
+
+        // Cambiar el estado de la compra
+        historialCompra.setEstadoCompra(nuevoEstado);
+        historialCompraRepository.save(historialCompra);
+
+        // Notificar al usuario sobre el cambio de estado
+        String mensaje = "El estado de tu pedido con ID: " + historialCompraId + " ha cambiado a: " + nuevoEstado;
+        notificacionService.notificarUsuario(historialCompra.getUsuario(), mensaje);
     }
 }

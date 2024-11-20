@@ -21,7 +21,7 @@ public class UsuarioEntity {
     private String direccion;
 
 
-    @OneToOne(mappedBy = "usuario")  // Relación bidireccional con CarritoEntity
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)  // Relación bidireccional con CarritoEntity
     @JsonManagedReference  // Indica que se debe serializar el carrito del usuario
     private CarritoEntity carrito;
 

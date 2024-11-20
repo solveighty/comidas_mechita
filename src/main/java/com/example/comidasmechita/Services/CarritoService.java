@@ -31,6 +31,10 @@ public class CarritoService {
     @Autowired
     HistorialCompraService historialCompraService;
 
+    @Autowired
+    NotificacionService notificacionService;
+    @Autowired
+    private HistorialCompraRepository historialCompraRepository;
 
 
     public CarritoEntity getOrCreateCarrito(Long usuarioId) {
@@ -120,21 +124,30 @@ public class CarritoService {
         boolean pagoExitoso = realizarPagoSimulado(total);
 
         if (pagoExitoso) {
-            // 3. Registrar compra en el historial
-            historialCompraService.registrarCompra(carrito);
+            // 3. Registrar compra en el historial y obtener el objeto con el ID generado
+            HistorialCompraEntity historialCompra = historialCompraService.registrarCompra(carrito);
 
             // 4. Vaciar los ítems del carrito después de realizar el pago
-
             carrito.getItems().clear();
 
             // 4. Guardar el carrito con los ítems vacíos
             carritoRepository.save(carrito);
 
-            System.out.println("Pago exitoso. Carrito vaciado.");
+            // 5. Notificar al administrador sobre el pedido realizado (usando id del historialCompra)
+            String mensajeAdmin = "Nuevo pedido realizado por " + carrito.getUsuario().getNombre() +
+                    " con ID de pedido: " + historialCompra.getId();
+            notificacionService.notificarAdministrador(carrito.getUsuario(), mensajeAdmin);
+
+            // 6. Notificar al usuario sobre el estado de su pedido (usando id del historialCompra)
+            String mensajeUsuario = "Tu pedido con ID de pedido: " + historialCompra.getId() + " ha sido recibido y está en proceso.";
+            notificacionService.notificarUsuario(carrito.getUsuario(), mensajeUsuario);
+
+            System.out.println("Pago exitoso. Carrito vaciado y notificaciones enviadas.");
         } else {
             throw new RuntimeException("Error al procesar el pago.");
         }
     }
+
 
     private double calcularTotal(CarritoEntity carrito) {
         double total = 0.0;

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -51,8 +52,14 @@ public class CarritoController {
     }
 
     @PutMapping("/pagar/{carritoId}")
-    public ResponseEntity<Void> pagarCarrito(@PathVariable Long carritoId) {
+    public ResponseEntity<Map<String, String>> pagarCarrito(@PathVariable Long carritoId) {
         carritoService.simularPago(carritoId);
-        return ResponseEntity.noContent().build(); // Retorna 204 No Content si la eliminación es exitosa
+
+        // Crear un mapa para incluir el mensaje de respuesta
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Pago exitoso. Carrito vaciado y notificaciones enviadas.");
+
+        // Retornar un ResponseEntity con el mensaje
+        return ResponseEntity.ok(response);  // Retorna el estado 200 OK con el mensaje
     }
 }

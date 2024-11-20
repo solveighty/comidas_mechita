@@ -38,6 +38,7 @@ public class MenuService {
             updatedMenu.setDescripcion(menu.getDescripcion());
             updatedMenu.setPrecio(menu.getPrecio());
             updatedMenu.setImagen(menu.getImagen());
+            updatedMenu.setCategoria(menu.getCategoria());
             return menuRepository.save(updatedMenu);
         } else {
             throw new RuntimeException("No se ha encontrado el Menú con ID: " + menu.getId());
