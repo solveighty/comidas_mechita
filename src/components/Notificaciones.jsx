@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-
 const Notifications = ({ userData, setUnreadCount }) => {
   const [notifications, setNotifications] = useState([]);
-
 
   useEffect(() => {
     if (userData) {
@@ -12,10 +10,11 @@ const Notifications = ({ userData, setUnreadCount }) => {
         .then(data => {
           // Filtrar notificaciones dependiendo de si es admin o no
           const filteredNotifications = data.filter((notification) => {
-
             return notification.tipoNotificacion === "USUARIO"; // Solo "USUARIO" si no es admin
           });
           setNotifications(filteredNotifications);
+
+          // Contar las notificaciones no leídas
           const unreadCount = filteredNotifications.filter(notification => !notification.leida).length;
           setUnreadCount(unreadCount); // Actualiza el contador en el App.jsx
         })
@@ -30,7 +29,7 @@ const Notifications = ({ userData, setUnreadCount }) => {
         {notifications.map((notification) => (
           <li key={notification.id}>
             <div style={{ fontWeight: notification.leida ? 'normal' : 'bold' }}>
-              {notification.mensaje}
+              {notification.mensaje} {/* Aquí se muestra el mensaje del cambio de estado */}
             </div>
             <small>{new Date(notification.fecha).toLocaleString()}</small>
           </li>
