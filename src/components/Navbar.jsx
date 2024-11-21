@@ -9,7 +9,7 @@ import 'primeicons/primeicons.css';
 
 
 
-function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userData, unreadCount  }) {
+function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userData, unreadCount }) {
     return (
         <nav
             style={{
@@ -67,20 +67,22 @@ function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, use
             {/* Contenedor de los botones del carrito y usuario alineados a la derecha */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {/* Pasamos userData al componente Notificaciones */}
-                <Link to="/notificaciones">
-                    <Button
-                        icon="pi pi-bell"
-                        outlined
-                        style={{
-                            backgroundColor: 'transparent',
-                            color: '#fff',
-                            borderColor: '#ffffff',
-                        }}
-                    />
-                    {unreadCount > 0 && (
-                        <Badge value={unreadCount} className="p-ml-2" severity="danger" />
-                    )}
-                </Link>
+                {userData?.rol !== 'ADMIN' && (
+                    <Link to="/notificaciones">
+                        <Button
+                            icon="pi pi-bell"
+                            outlined
+                            style={{
+                                backgroundColor: 'transparent',
+                                color: '#fff',
+                                borderColor: '#ffffff',
+                            }}
+                        />
+                        {unreadCount > 0 && (
+                            <Badge value={unreadCount} className="p-ml-2" severity="danger" />
+                        )}
+                    </Link>
+                )}
 
                 <Link to="/carrito">
                     <Button

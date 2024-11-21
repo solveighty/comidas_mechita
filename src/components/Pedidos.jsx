@@ -34,7 +34,7 @@ function Pedidos({ userId }) {
   // Función para calcular el total de cada pedido
   const calcularTotal = (detalles) => {
     return detalles.reduce((total, detalle) => {
-      return total + detalle.precio * detalle.cantidad; // Multiplicar por cantidad
+      return total + detalle.precio ; // Multiplicar por cantidad
     }, 0).toFixed(2); // Total con cantidades
   };
 

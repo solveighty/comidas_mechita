@@ -46,11 +46,13 @@ export default function Pedido({ userData }) {
                 }
                 return response.json();
             })
-            .then((data) => {
+            .then(() => {
                 // Actualizar el estado del pedido localmente después de la actualización
-                setPedidos(pedidos.map((pedido) => 
-                    pedido.id === pedidoId ? { ...pedido, estadoCompra: nuevoEstado } : pedido
-                ));
+                setPedidos((prevPedidos) =>
+                    prevPedidos.map((pedido) =>
+                        pedido.id === pedidoId ? { ...pedido, estadoCompra: nuevoEstado } : pedido
+                    )
+                );
             })
             .catch((error) => {
                 console.error('Error updating order status:', error);
@@ -58,8 +60,8 @@ export default function Pedido({ userData }) {
     };
 
     const itemTemplate = (pedido) => {
-        const total = pedido.detalles.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-        
+        const total = pedido.detalles.reduce((acc, item) => acc + item.precio, 0);
+
         return (
             <Card key={pedido.id} className="mb-4">
                 <div className="p-fluid">
@@ -71,7 +73,7 @@ export default function Pedido({ userData }) {
                             <div>Estado: {pedido.estadoCompra}</div>
 
                             {/* Dropdown para cambiar el estado */}
-                            <Dropdown 
+                            <Dropdown
                                 value={pedido.estadoCompra}
                                 options={estadoOptions}
                                 onChange={(e) => handleEstadoChange(pedido.id, e.value)}
@@ -101,7 +103,9 @@ export default function Pedido({ userData }) {
                 <p>Cargando...</p> // Mensaje mientras se cargan los datos
             ) : (
                 <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
-                    {pedidos.map(itemTemplate)}
+                    {pedidos
+                        .filter((pedido) => pedido.estadoCompra !== 'ENTREGADO') // Filtrar los pedidos que no están entregados
+                        .map(itemTemplate)}
                 </div>
             )}
         </div>
