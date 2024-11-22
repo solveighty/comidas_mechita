@@ -34,5 +34,4 @@ public class UsuarioEntity {
         ADMIN,
         NORMAL
     }
-
 }
