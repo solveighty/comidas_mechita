@@ -105,7 +105,6 @@ function Login({ onLogin }) {
                         <div className="form-group">
                             <label htmlFor="username">Usuario</label>
                             <span className="p-input-icon-left">
-                                <i className="pi pi-user" />
                                 <InputText
                                     id="username"
                                     value={username}

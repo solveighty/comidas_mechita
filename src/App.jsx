@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import Layout from './components/Layout';
 import Home from './components/Home';
@@ -15,20 +15,35 @@ import Pedidos from './components/Pedidos';
 import Notifications from './components/Notificaciones';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState(null);
+  // Cargar el estado desde localStorage al inicio
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
+
+  const [userData, setUserData] = useState(() => {
+    const savedUser = localStorage.getItem('userData');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('isAdmin') === 'true';
+  });
+
   const [cartItems, setCartItems] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLogin = (data) => {
     setIsAuthenticated(true);
     setUserData(data);
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userData', JSON.stringify(data));
+
     // Verificar si el usuario es admin al momento de login
     fetch(`http://localhost:8080/usuarios/${data.id}/esAdmin`)
       .then(response => response.json())
       .then(isAdminResponse => {
-        setIsAdmin(isAdminResponse); // Actualizar estado de administrador
+        setIsAdmin(isAdminResponse);
+        localStorage.setItem('isAdmin', isAdminResponse);
       })
       .catch((error) => console.error('Error verifying admin status:', error));
   };
@@ -37,7 +52,11 @@ function App() {
     setIsAuthenticated(false);
     setUserData(null);
     setCartItems([]);
-    setIsAdmin(false); // Resetear el estado de admin al hacer logout
+    setIsAdmin(false);
+    // Limpiar localStorage al hacer logout
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isAdmin');
   };
 
   return (
@@ -53,11 +72,11 @@ function App() {
             <Route path="/contacto" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><Contact /></Layout>} />
             <Route path="/perfil" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><Profile userData={userData} /></Layout>} />
             <Route path="/configuracion" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><Settings userData={userData} /></Layout>} />
-            <Route path="/admin" element={isAuthenticated && isAdmin ? <Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><AdminPage userData={userData} /></Layout> : <Navigate to="/login" replace />} />
+            <Route path="/admin" element={isAdmin ? <Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><AdminPage userData={userData} /></Layout> : <Navigate to="/login" replace />} />
             <Route path="/carrito" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><Cart userData={userData} /></Layout>} />
             <Route path="/pedidos" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData}><Pedidos userId={userData.id} /></Layout>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/notificaciones" element={<Layout onLogout={handleLogout} cartItemsCount={cartItems.length} userData={userData} unreadCount={unreadCount}><Notifications userData={userData} setUnreadCount={setUnreadCount} isAdmin={isAdmin} /></Layout>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
