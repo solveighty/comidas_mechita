@@ -1,8 +1,10 @@
 const TelegramBot = require('node-telegram-bot-api');
+require('dotenv').config();
 const axios = require('axios');
 
+
 // Token del bot de Telegram
-const token = '7993217379:AAEOGc3n5YedI58FK-WnEdYH4zw6zRlOFl0';
+const token = process.env.BOT_TOKEN;
 
 // Crear el bot usando 'polling' para recibir actualizaciones
 const bot = new TelegramBot(token, { polling: true });
@@ -46,6 +48,19 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
     }
   }
 });
+
+//comando para desloguear
+bot.onText(/\/logout/, (msg) => {
+  const chatId = msg.chat.id;
+
+  if (userSessions[chatId]) {
+    delete userSessions[chatId];
+    bot.sendMessage(chatId, 'Has cerrado sesión exitosamente. ¡Hasta luego!');
+  } else {
+    bot.sendMessage(chatId, 'No hay una sesión activa para cerrar.');
+  }
+});
+
 
 // Comando para ver el menú
 bot.onText(/\/menu/, async (msg) => {
