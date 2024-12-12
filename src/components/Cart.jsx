@@ -3,6 +3,9 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom';
+import { Dialog } from 'primereact/dialog';
+import { RadioButton } from 'primereact/radiobutton';
+
 import '../styles/Cart.css';
 
 
@@ -11,6 +14,9 @@ function Cart({ userData }) {
     const [loading, setLoading] = useState(true);
     const toast = useRef(null);
     const navigate = useNavigate();
+    const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('Efectivo');
+
 
     useEffect(() => {
         if (userData?.id) {
@@ -21,20 +27,20 @@ function Cart({ userData }) {
     const fetchCartItems = async () => {
         try {
             const response = await fetch(`http://localhost:8080/usuarios`);
-            
+
             if (!response.ok) {
                 throw new Error('Error al cargar el carrito');
             }
 
             const users = await response.json();
             const currentUser = users.find(user => user.id === userData.id);
-            
+
             if (currentUser && currentUser.carrito && currentUser.carrito.items) {
                 setCartItems(currentUser.carrito.items);
             } else {
                 setCartItems([]);
             }
-            
+
             setLoading(false);
         } catch (error) {
             console.error('Error:', error);
@@ -84,7 +90,7 @@ function Cart({ userData }) {
 
     const calculateTotal = () => {
         if (!cartItems || cartItems.length === 0) return 0;
-        
+
         return cartItems.reduce((total, item) => {
             const precio = item.menu?.precio || 0;
             const cantidad = item.cantidad || 0;
@@ -93,6 +99,10 @@ function Cart({ userData }) {
     };
 
     const handlePayment = async () => {
+        setShowPaymentDialog(true); // Mostrar el diálogo de opciones de pago
+    };
+
+    const confirmPayment = async () => {
         try {
             if (!userData?.carrito?.id) {
                 toast.current.show({
@@ -108,7 +118,8 @@ function Cart({ userData }) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ metodoPago: paymentMethod }) // Enviar el método de pago
             });
 
             if (!response.ok) {
@@ -118,13 +129,12 @@ function Cart({ userData }) {
             toast.current.show({
                 severity: 'success',
                 summary: '¡Éxito!',
-                detail: 'Pago procesado correctamente',
+                detail: `Pago procesado correctamente con ${paymentMethod}`,
                 life: 3000
             });
 
-            // Actualizar el carrito después del pago
-            await fetchCartItems();
-
+            setShowPaymentDialog(false);
+            await fetchCartItems(); // Actualizar el carrito después del pago
         } catch (error) {
             console.error('Error:', error);
             toast.current.show({
@@ -135,6 +145,7 @@ function Cart({ userData }) {
             });
         }
     };
+
 
     return (
         <div className="cart-container">
@@ -152,9 +163,9 @@ function Cart({ userData }) {
                         <i className="pi pi-shopping-cart" style={{ fontSize: '3rem' }}></i>
                         <h2>Tu carrito está vacío</h2>
                         <p>¡Agrega algunos productos deliciosos!</p>
-                        <Button 
-                            label="Ver Menú" 
-                            icon="pi pi-list" 
+                        <Button
+                            label="Ver Menú"
+                            icon="pi pi-list"
                             onClick={() => navigate('/menu')}
                         />
                     </div>
@@ -165,9 +176,9 @@ function Cart({ userData }) {
                         {cartItems.map(item => (
                             <Card key={item.id} className="cart-item">
                                 <div className="cart-item-content">
-                                    <img 
-                                        src={item.menu?.imagen} 
-                                        alt={item.menu?.nombre} 
+                                    <img
+                                        src={item.menu?.imagen}
+                                        alt={item.menu?.nombre}
                                         className="cart-item-image"
                                         onError={(e) => {
                                             e.target.onerror = null; // Prevenir loop infinito
@@ -184,9 +195,9 @@ function Cart({ userData }) {
                                         <span className="cart-item-quantity">
                                             Cantidad: {item.cantidad}
                                         </span>
-                                        <Button 
-                                            icon="pi pi-trash" 
-                                            className="p-button-danger p-button-text" 
+                                        <Button
+                                            icon="pi pi-trash"
+                                            className="p-button-danger p-button-text"
                                             onClick={() => removeItem(userData.carrito?.id, item.id)}
                                             tooltip="Eliminar"
                                         />
@@ -195,7 +206,7 @@ function Cart({ userData }) {
                             </Card>
                         ))}
                     </div>
-                    
+
                     <Card className="cart-summary">
                         <h3>Resumen del Pedido</h3>
                         <div className="cart-summary-content">
@@ -211,8 +222,8 @@ function Cart({ userData }) {
                                 <span>Total:</span>
                                 <span>${calculateTotal().toFixed(2)}</span>
                             </div>
-                            <Button 
-                                label="Proceder al Pago" 
+                            <Button
+                                label="Proceder al Pago"
                                 icon="pi pi-shopping-cart"
                                 className="p-button-success p-button-raised"
                                 onClick={handlePayment}
@@ -220,6 +231,51 @@ function Cart({ userData }) {
                             />
                         </div>
                     </Card>
+                    <Dialog
+                        visible={showPaymentDialog}
+                        header="Selecciona un método de pago"
+                        onHide={() => setShowPaymentDialog(false)}
+                        footer={
+                            <div>
+                                <Button
+                                    label="Cancelar"
+                                    icon="pi pi-times"
+                                    onClick={() => setShowPaymentDialog(false)}
+                                    className="p-button-text"
+                                />
+                                <Button
+                                    label="Confirmar Pago"
+                                    icon="pi pi-check"
+                                    onClick={confirmPayment}
+                                    className="p-button-success"
+                                />
+                            </div>
+                        }
+                    >
+                        <div className="payment-method-options">
+                            <div className="p-field-radiobutton">
+                                <RadioButton
+                                    inputId="efectivo"
+                                    name="paymentMethod"
+                                    value="Efectivo"
+                                    onChange={(e) => setPaymentMethod(e.value)}
+                                    checked={paymentMethod === 'Efectivo'}
+                                />
+                                <label htmlFor="efectivo">Efectivo</label>
+                            </div>
+                            <div className="p-field-radiobutton">
+                                <RadioButton
+                                    inputId="tarjeta"
+                                    name="paymentMethod"
+                                    value="Tarjeta"
+                                    onChange={(e) => setPaymentMethod(e.value)}
+                                    checked={paymentMethod === 'Tarjeta'}
+                                />
+                                <label htmlFor="tarjeta">Con Tarjeta</label>
+                            </div>
+                        </div>
+                    </Dialog>
+
                 </div>
             )}
         </div>
