@@ -179,14 +179,36 @@ bot.onText(/\/carrito/, async (msg) => {
       return;
     }
 
+    // Inicializar el total a pagar
+    let total = 0;
+    
     // Construir un mensaje con los detalles del carrito
     let mensajeCarrito = '🛒 *Tu Carrito:*\n\n';
+    const buttons = [];
+
     carrito.items.forEach((item, index) => {
       mensajeCarrito += `${index + 1}. *${item.menu.nombre}*\n   Cantidad: ${item.cantidad}\n   Precio: $${item.menu.precio}\n\n`;
+
+      // Sumar el precio del ítem al total
+      total += item.menu.precio * item.cantidad;
+
+      // Crear el botón para eliminar el ítem
+      buttons.push([{
+        text: `Eliminar ${item.menu.nombre}`,
+        callback_data: `eliminar_${item.id}`,  // Aquí pasamos el item ID para eliminarlo
+      }]);
     });
 
-    // Enviar el mensaje del carrito al usuario
-    bot.sendMessage(chatId, mensajeCarrito, { parse_mode: 'Markdown' });
+    // Mostrar el total a pagar
+    mensajeCarrito += `\n*Total a pagar:* $${total.toFixed(2)}`;
+
+    // Enviar el mensaje del carrito con los botones para eliminar
+    bot.sendMessage(chatId, mensajeCarrito, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: buttons
+      }
+    });
 
   } catch (error) {
     console.error('Error al obtener el carrito:', error);
@@ -194,20 +216,72 @@ bot.onText(/\/carrito/, async (msg) => {
   }
 });
 
-// Escuchar cuando el usuario selecciona un plato
-bot.on('callback_query', (query) => {
+
+// Manejador de callback para eliminar ítems del carrito
+bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
-  const menuId = query.data.split('_')[1];
+  const data = query.data.split('_');
+  const action = data[0];
+  const itemId = data[1];
 
-  // Guardar temporalmente el menuId
-  pendingSelections[chatId] = { menuId };
+  if (action === 'eliminar') {
+    console.log(`Intentando eliminar el ítem con ID: ${itemId} del carrito ${userSessions[chatId].carritoId}`);
+    
+    try {
+      const carritoId = userSessions[chatId].carritoId;
+      const response = await axios.delete(`http://localhost:8080/carrito/eliminar/${carritoId}/${itemId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-  bot.sendMessage(chatId, 'Por favor, ingresa la cantidad que deseas agregar:', {
-    reply_markup: {
-      force_reply: true,
-    },
-  });
+      console.log('Respuesta del servidor:', response.status);
+
+      if (response.status >= 200 && response.status < 300) {
+        bot.sendMessage(chatId, '¡El producto ha sido eliminado del carrito!');
+        bot.emit('text', { chat: { id: chatId }, text: '/carrito' });
+      } else {
+        bot.sendMessage(chatId, 'Ocurrió un error al eliminar el producto. Intenta nuevamente más tarde.');
+      }
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error.message);
+      bot.sendMessage(chatId, 'Ocurrió un error al eliminar el producto. Intenta nuevamente más tarde.');
+    }
+  }
 });
+
+
+
+bot.onText(/\/pagar/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  // Verificar si el usuario está logueado
+  if (!userSessions[chatId]) {
+    bot.sendMessage(chatId, 'Por favor, inicia sesión primero con el comando /login.');
+    return;
+  }
+
+  const carritoId = userSessions[chatId].carritoId;
+
+  try {
+    // Procesar el pago
+    const response = await axios.put(`http://localhost:8080/carrito/pagar/${carritoId}`, {
+      metodoPago: 'Efectivo', // Puedes cambiar esto por una lógica para seleccionar el método de pago
+    });
+
+    // Verificar si la respuesta del backend es exitosa
+    if (response.status === 200) {
+      bot.sendMessage(chatId, '¡Pago procesado con éxito! Tu carrito ha sido vaciado.');
+    } else {
+      throw new Error('Respuesta inesperada del servidor');
+    }
+
+  } catch (error) {
+    console.error('Error al procesar el pago:', error);
+  }
+});
+
+
 
 // Escuchar la respuesta con la cantidad y agregar al carrito
 bot.on('message', async (msg) => {
