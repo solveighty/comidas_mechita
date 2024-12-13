@@ -10,6 +10,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 // Estado para almacenar datos de sesión temporal
 const userSessions = {};
+const pendingSelections = {};
 
 // Comando para loguearse
 bot.onText(/\/login (.+)/, async (msg, match) => {
@@ -87,6 +88,38 @@ bot.onText(/\/logout/, (msg) => {
   }
 });
 
+
+// Función para agregar al carrito
+const addToCart = async (chatId, menuId, quantity) => {
+  const userId = userSessions[chatId]?.id;
+
+  if (!userId || !menuId || !quantity) {
+    bot.sendMessage(chatId, "Faltan datos para agregar al carrito.");
+    return;
+  }
+
+  try {
+    // Convertir los valores a números para asegurar que se envíen correctamente
+    const payload = {
+      usuarioId: parseInt(userId, 10),
+      menuId: parseInt(menuId, 10),
+      cantidad: parseInt(quantity, 10),
+    };
+
+    const response = await axios.post('http://localhost:8080/carrito/agregar', payload);
+
+    if (response.status === 200) {
+      bot.sendMessage(chatId, `Platillo agregado al carrito con éxito.`);
+    } else {
+      bot.sendMessage(chatId, 'No se pudo agregar el item al carrito.');
+    }
+  } catch (error) {
+    console.error('Error al agregar al carrito:', error);
+    bot.sendMessage(chatId, 'Ocurrió un error al intentar agregar el item al carrito.');
+  }
+};
+
+// Mostrar el menú con botones
 bot.onText(/\/menu/, async (msg) => {
   const chatId = msg.chat.id;
 
@@ -100,81 +133,100 @@ bot.onText(/\/menu/, async (msg) => {
     const response = await axios.get('http://localhost:8080/menu');
     const menuItems = response.data;
 
-    // Formar el mensaje con los detalles del menú, incluyendo el ID real
-    let menuMessage = 'Menú disponible:\n\n';
-    menuItems.forEach((item, index) => {
-      menuMessage += `${index + 1}. ${item.nombre} - $${item.precio} (ID: ${item.id})\n`;
-    });
+    // Crear una lista de botones con los elementos del menú
+    const buttons = menuItems.map((item) => [
+      {
+        text: `${item.nombre} - $${item.precio}`,
+        callback_data: `select_${item.id}`,
+      },
+    ]);
 
-    // Enviar el mensaje al usuario
-    bot.sendMessage(chatId, menuMessage + '\nPara agregar al carrito, usa: /agregar <número del plato> <cantidad>');
+    // Enviar el menú con botones
+    bot.sendMessage(chatId, 'Menú disponible:', {
+      reply_markup: {
+        inline_keyboard: buttons,
+      },
+    });
   } catch (error) {
     console.error('Error al obtener el menú:', error);
     bot.sendMessage(chatId, 'Error al obtener el menú.');
   }
 });
 
-
-
-const addToCart = async (chatId, menuId, quantity) => {
-  const userId = userSessions[chatId]?.id;  // Asegúrate de que el usuario esté autenticado y tenga un id
-
-  if (!userId || !menuId || !quantity) {
-      bot.sendMessage(chatId, "Faltan datos para agregar al carrito.");
-      return;
-  }
-
-  try {
-      // Obtener el ítem del menú (simulado, debes adaptarlo a tu lógica)
-      const menuItem = { id: menuId, nombre: "Nombre del Platillo" }; // Aquí deberías buscar el platillo en tu base de datos o en un arreglo
-
-      // Enviar solicitud POST al backend para agregar al carrito
-      const response = await axios.post('http://localhost:8080/carrito/agregar', {
-          usuarioId: userId,
-          menuId: menuItem.id,
-          cantidad: quantity,
-      });
-
-      // Verificar si la respuesta fue exitosa
-      if (response.status === 200) {
-          bot.sendMessage(chatId, `${menuItem.nombre} agregado al carrito con éxito.`);
-      } else {
-          bot.sendMessage(chatId, 'No se pudo agregar el item al carrito.');
-      }
-  } catch (error) {
-      console.error('Error al agregar al carrito:', error);
-      bot.sendMessage(chatId, 'Ocurrió un error al intentar agregar el item al carrito.');
-  }
-};
-
-// Listener para manejar mensajes del bot
-bot.onText(/\/agregar (\d+) (\d+)/, async (msg, match) => {
+bot.onText(/\/carrito/, async (msg) => {
   const chatId = msg.chat.id;
-  const menuId = parseInt(match[1], 10); // El ID del menú del mensaje
-  const quantity = parseInt(match[2], 10); // La cantidad del mensaje
 
-  // Llamar a la función para agregar al carrito
-  await addToCart(chatId, menuId, quantity);
-});
-
-// Mensaje por defecto
-bot.on('message', (msg) => {
-  const chatId = msg.chat.id;
-  const userId = userSessions[chatId]?.id;
-  const selectedMenuId = userSessions[chatId]?.selectedMenuId;
-
-  if (!userId || !selectedMenuId) return;
-
-  const quantity = parseInt(msg.text);
-
-  if (isNaN(quantity) || quantity <= 0) {
-    bot.sendMessage(chatId, 'Por favor, ingresa una cantidad válida.');
+  // Verificar si el usuario está logueado
+  if (!userSessions[chatId]) {
+    bot.sendMessage(chatId, 'Por favor, inicia sesión primero con el comando /login.');
     return;
   }
 
-  // Llamar a la función para agregar al carrito
-  addToCart(chatId, selectedMenuId, quantity);
+  const userId = userSessions[chatId].id;
 
-  // Limpiar la selección del menú para evitar que el bot siga pidiendo cantidades
-  delete userSessions[chatId].selectedMenuId;
+  try {
+    // Obtener el carrito del usuario desde el backend
+    const carritoResponse = await axios.get(`http://localhost:8080/carrito/${userId}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const carrito = carritoResponse.data;
+
+    if (carrito.items.length === 0) {
+      bot.sendMessage(chatId, 'Tu carrito está vacío.');
+      return;
+    }
+
+    // Construir un mensaje con los detalles del carrito
+    let mensajeCarrito = '🛒 *Tu Carrito:*\n\n';
+    carrito.items.forEach((item, index) => {
+      mensajeCarrito += `${index + 1}. *${item.menu.nombre}*\n   Cantidad: ${item.cantidad}\n   Precio: $${item.menu.precio}\n\n`;
+    });
+
+    // Enviar el mensaje del carrito al usuario
+    bot.sendMessage(chatId, mensajeCarrito, { parse_mode: 'Markdown' });
+
+  } catch (error) {
+    console.error('Error al obtener el carrito:', error);
+    bot.sendMessage(chatId, 'Ocurrió un error al obtener tu carrito. Intenta nuevamente más tarde.');
+  }
 });
+
+// Escuchar cuando el usuario selecciona un plato
+bot.on('callback_query', (query) => {
+  const chatId = query.message.chat.id;
+  const menuId = query.data.split('_')[1];
+
+  // Guardar temporalmente el menuId
+  pendingSelections[chatId] = { menuId };
+
+  bot.sendMessage(chatId, 'Por favor, ingresa la cantidad que deseas agregar:', {
+    reply_markup: {
+      force_reply: true,
+    },
+  });
+});
+
+// Escuchar la respuesta con la cantidad y agregar al carrito
+bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
+
+  if (pendingSelections[chatId]) {
+    const menuId = pendingSelections[chatId].menuId;
+    const quantity = parseInt(msg.text, 10);
+
+    if (isNaN(quantity) || quantity <= 0) {
+      bot.sendMessage(chatId, 'Cantidad inválida. Intenta nuevamente.');
+      return;
+    }
+
+    // Llamar a la función para agregar al carrito
+    await addToCart(chatId, menuId, quantity);
+
+    // Limpiar la selección pendiente
+    delete pendingSelections[chatId];
+  }
+});
+
