@@ -88,7 +88,6 @@ bot.onText(/\/logout/, (msg) => {
   }
 });
 
-
 // Función para agregar al carrito
 const addToCart = async (chatId, menuId, quantity) => {
   const userId = userSessions[chatId]?.id;
@@ -216,7 +215,6 @@ bot.onText(/\/carrito/, async (msg) => {
   }
 });
 
-
 // Manejador de callback para eliminar ítems del carrito
 bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
@@ -250,8 +248,6 @@ bot.on('callback_query', async (query) => {
   }
 });
 
-
-
 bot.onText(/\/pagar/, async (msg) => {
   const chatId = msg.chat.id;
 
@@ -280,8 +276,6 @@ bot.onText(/\/pagar/, async (msg) => {
     console.error('Error al procesar el pago:', error);
   }
 });
-
-
 
 // Escuchar la respuesta con la cantidad y agregar al carrito
 bot.on('message', async (msg) => {
