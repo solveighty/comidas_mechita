@@ -222,7 +222,12 @@ bot.on('callback_query', async (query) => {
   const action = data[0];
   const itemId = data[1];
 
-  if (action === 'eliminar') {
+  if (action === 'select') {
+    // Guardar la selección pendiente para este chat
+    pendingSelections[chatId] = { menuId: itemId };
+
+    bot.sendMessage(chatId, 'Por favor, ingresa la cantidad que deseas agregar:');
+  } else if (action === 'eliminar') {
     console.log(`Intentando eliminar el ítem con ID: ${itemId} del carrito ${userSessions[chatId].carritoId}`);
     
     try {
@@ -247,6 +252,7 @@ bot.on('callback_query', async (query) => {
     }
   }
 });
+
 
 bot.onText(/\/pagar/, async (msg) => {
   const chatId = msg.chat.id;
