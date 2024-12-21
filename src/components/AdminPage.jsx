@@ -6,13 +6,15 @@ import AddMenu from './AddMenu';
 import Pedido from './Pedido';
 import DeleteMenu from './DeleteMenu';
 import UpdateMenu from './UpdateMenu';
+import HistorialVentas from './HistorialVentas';
 
 
 export default function AdminMenu({ userData }) {
     const [displayAddDialog, setDisplayAddDialog] = useState(false);
     const [displayUpdateDialog, setDisplayUpdateDialog] = useState(false);
     const [displayDeleteDialog, setDisplayDeleteDialog] = useState(false);
-    const [displayOrdersDialog, setDisplayOrdersDialog] = useState(false); // Nuevo estado para los pedidos
+    const [displayOrdersDialog, setDisplayOrdersDialog] = useState(false); 
+    const [displayVentasDialog, setDisplayVentasDialog] = useState(false); 
     const toast = useRef(null);
 
     const openDialog = (dialogType) => {
@@ -29,6 +31,9 @@ export default function AdminMenu({ userData }) {
             case 'orders':
                 setDisplayOrdersDialog(true); 
                 break;
+            case 'ventas':
+                setDisplayVentasDialog(true);
+                break;
             default:
                 break;
         }
@@ -38,7 +43,8 @@ export default function AdminMenu({ userData }) {
         setDisplayAddDialog(false);
         setDisplayUpdateDialog(false);
         setDisplayDeleteDialog(false);
-        setDisplayOrdersDialog(false); // Cerrar el diálogo de pedidos
+        setDisplayOrdersDialog(false); 
+        setDisplayVentasDialog(false);
     };
 
     const items = [
@@ -61,6 +67,11 @@ export default function AdminMenu({ userData }) {
             label: 'Ver Pedidos',
             icon: 'pi pi-list',
             command: () => openDialog('orders'),
+        },
+        {
+            label: 'Ver Ventas',
+            icon: 'pi pi-chart-line',
+            command: () => openDialog('ventas'),
         },
     ];
 
@@ -111,6 +122,16 @@ export default function AdminMenu({ userData }) {
             >
                 {/* Aquí, pasamos los datos del pedido al componente Pedido */}
                 <Pedido userData={userData} />
+            </Dialog>
+
+            <Dialog
+                header="Historial de Ventas"
+                visible={displayVentasDialog}
+                onHide={closeDialog}
+                style={{ width: '50vw' }}
+                draggable={false}
+            >
+                <HistorialVentas userData={userData} toast={toast} />
             </Dialog>
         </div>
     );
