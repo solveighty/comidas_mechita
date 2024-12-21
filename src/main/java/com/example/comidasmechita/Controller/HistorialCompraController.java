@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/historial")
@@ -54,4 +56,44 @@ public class HistorialCompraController {
             return ResponseEntity.status(500).body(null); // Error interno
         }
     }
+
+    // Endpoint para obtener el historial de compras por fechas
+    @GetMapping("/ventas")
+    public ResponseEntity<Map<String, Object>> obtenerVentasPorFechas(
+            @RequestParam Long userId,
+            @RequestParam String rango) {
+        try {
+            // Obtener la fecha de inicio y final según el rango
+            LocalDateTime startDate = null;
+            LocalDateTime endDate = LocalDateTime.now();
+
+            switch (rango) {
+                case "diario":
+                    startDate = LocalDateTime.now().minusDays(1);
+                    break;
+                case "semanal":
+                    startDate = LocalDateTime.now().minusWeeks(1);
+                    break;
+                case "mensual":
+                    startDate = LocalDateTime.now().minusMonths(1);
+                    break;
+                case "anual":
+                    startDate = LocalDateTime.now().minusYears(1);
+                    break;
+                default:
+                    return ResponseEntity.status(400).body(null); // Bad request si el rango es inválido
+            }
+
+            // Obtener el historial de compras y el total de ventas
+            Map<String, Object> response = historialCompraService.obtenerHistorialYTotalVentasPorFechas(userId, startDate, endDate);
+
+            // Retornar tanto el historial como el total de ventas
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).build(); // 403 si no es admin
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build(); // Error interno
+        }
+    }
+
 }

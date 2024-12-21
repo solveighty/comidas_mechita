@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,5 +87,28 @@ public class HistorialCompraService {
         // Notificar al usuario sobre el cambio de estado
         String mensaje = "El estado de tu pedido con ID: " + historialCompraId + " ha cambiado a: " + nuevoEstado;
         notificacionService.notificarUsuario(historialCompra.getUsuario(), mensaje);
+    }
+
+    // Método para obtener historial por fechas
+    public Map<String, Object> obtenerHistorialYTotalVentasPorFechas(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        if (!usuarioService.isAdmin(userId)) {
+            throw new RuntimeException("Acceso denegado. Solo los administradores pueden ver el historial.");
+        }
+
+        // Obtener el historial de compras en el rango de fechas
+        List<HistorialCompraEntity> historial = historialCompraRepository.findByFechaCompraBetween(startDate, endDate);
+
+        // Calcular el total de ventas
+        double totalVentas = historial.stream()
+                .flatMap(historialCompra -> historialCompra.getDetalles().stream())
+                .mapToDouble(DetalleCompraEntity::getPrecio)
+                .sum();
+
+        // Crear un mapa para devolver tanto el historial como el total de ventas
+        Map<String, Object> response = new HashMap<>();
+        response.put("historial", historial);
+        response.put("totalVentas", totalVentas);
+
+        return response;
     }
 }
