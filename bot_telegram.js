@@ -46,10 +46,15 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
       throw new Error('Usuario no encontrado');
     }
 
-    // Guardar los detalles del usuario en la sesión
+    // Verificar si el usuario es admin
+    const isAdminResponse = await axios.get(`http://localhost:8080/usuarios/${user.id}/esAdmin`);
+    const isAdmin = isAdminResponse.data;
+
+    // Guardar los detalles del usuario y el estado de admin en la sesión
     userSessions[chatId] = {
       username,
       carritoId: user.carrito.id,  // Guardar el carritoId en la sesión
+      isAdmin,  // Guardar el estado de admin
       ...user // Guardar los detalles completos del usuario
     };
 
@@ -75,6 +80,7 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
     }
   }
 });
+
 
 //comando para desloguear
 bot.onText(/\/logout/, (msg) => {
@@ -293,6 +299,68 @@ bot.onText(/\/pagar/, async (msg) => {
   }
 });
 
+bot.onText(/\/historialVentas (diario|semanal|mensual|anual)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const rango = match[1]; // Rango elegido: diario, semanal, mensual, anual
+
+  // Función para calcular el total de una venta
+  const calcularTotalVenta = (detalles) => {
+    return detalles.reduce((total, detalle) => {
+      // Si tienes la cantidad de cada item, la puedes usar
+      return total + (detalle.precio);
+    }, 0);
+  };
+
+  // Verificar si el usuario está logueado y es administrador
+  if (userSessions[chatId] && userSessions[chatId].isAdmin) {
+    try {
+      // Obtener las ventas del rango seleccionado para el usuario
+      const userId = userSessions[chatId].id; // Obtener el ID del usuario desde la sesión
+      const response = await axios.get(`http://localhost:8080/historial/ventas?userId=${userId}&rango=${rango}`);
+
+      // Verificar si la respuesta es exitosa
+      if (response.status === 200) {
+        const ventas = response.data.historial;
+
+        // Ordenar las ventas por fecha (descendente)
+        const ventasOrdenadas = ventas.sort((a, b) => new Date(b.fechaCompra) - new Date(a.fechaCompra));
+
+        // Calcular el total de todas las ventas
+        const totalVentas = ventas.reduce((total, venta) => total + calcularTotalVenta(venta.detalles), 0);
+
+        // Formatear la respuesta para mostrar las ventas de forma legible
+        let message = `Historial de ventas (${rango}):\n\n`;
+        ventasOrdenadas.forEach(venta => {
+          const totalVenta = calcularTotalVenta(venta.detalles);
+          message += `Fecha: ${new Date(venta.fechaCompra).toLocaleString()}\nTotal: $${totalVenta.toFixed(2)}\n`;
+          message += `Detalles:\n`;
+          venta.detalles.forEach(detalle => {
+            message += `  - ${detalle.nombreMenu} x${detalle.cantidad} = $${(detalle.precio).toFixed(2)}\n`;
+          });
+          message += `\n`; // Separar ventas
+        });
+
+        // Incluir el total de las ventas
+        message += `Total de las ventas: $${totalVentas.toFixed(2)}\n`;
+
+        if (ventasOrdenadas.length === 0) {
+          message = `No se encontraron ventas en el rango ${rango}.`;
+        }
+
+        bot.sendMessage(chatId, message);
+      } else {
+        bot.sendMessage(chatId, 'No se pudo obtener el historial de ventas. Intenta más tarde.');
+      }
+    } catch (error) {
+      console.error('Error al obtener el historial de ventas:', error);
+      bot.sendMessage(chatId, 'Hubo un error al intentar obtener el historial de ventas.');
+    }
+  } else {
+    bot.sendMessage(chatId, 'No tienes permisos para acceder al historial de ventas.');
+  }
+});
+
+
 // Escuchar la respuesta con la cantidad y agregar al carrito
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
@@ -331,7 +399,6 @@ bot.on('message', async (msg) => {
     delete pendingSelections[chatId];
   }
 });
-
 
 // Comando para mostrar la lista de comandos disponibles
 bot.onText(/\/comandos/, (msg) => {
