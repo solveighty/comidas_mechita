@@ -2,6 +2,7 @@ package com.example.comidasmechita.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,7 @@ public class UsuarioEntity {
     private String nombre;
     private String contrasena;
     private String telefono;
+    @Email(message = "El correo electrónico debe tener un formato válido")
     private String email;
     private String direccion;
 

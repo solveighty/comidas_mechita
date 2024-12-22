@@ -2,9 +2,11 @@ package com.example.comidasmechita.Controller;
 
 import com.example.comidasmechita.Entity.UsuarioEntity;
 import com.example.comidasmechita.Services.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
+@Validated
 public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
@@ -32,7 +35,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/crearusuario")
-    public ResponseEntity<UsuarioEntity> createUsuario(@RequestBody UsuarioEntity usuario) {
+    public ResponseEntity<UsuarioEntity> createUsuario(@Valid @RequestBody UsuarioEntity usuario) {
         UsuarioEntity createdUsuario = usuarioService.saveUsuario(usuario);
         return new ResponseEntity<>(createdUsuario, HttpStatus.CREATED);
     }
