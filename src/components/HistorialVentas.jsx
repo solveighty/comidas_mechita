@@ -57,7 +57,14 @@ export default function HistorialVentas({ userData, toast }) {
     ];
 
     const calcularTotalVenta = (detalles) => {
-        return detalles.reduce((total, detalle) => total + detalle.precio * detalle.cantidad, 0);
+        return detalles.reduce((total, detalle) => {
+            // Verificar los valores de precio y cantidad
+            console.log('Precio:', detalle.precio, 'Cantidad:', detalle.cantidad);
+
+            const totalItem = detalle.precio;
+
+            return total + totalItem;
+        }, 0);
     };
 
     const totalVentas = ventas.reduce((total, venta) => total + calcularTotalVenta(venta.detalles), 0);
@@ -100,7 +107,7 @@ export default function HistorialVentas({ userData, toast }) {
                                                 {venta.detalles.map((detalle, idx) => (
                                                     <li key={idx}>
                                                         {detalle.nombreMenu} x{detalle.cantidad} = $
-                                                        {(detalle.precio * detalle.cantidad).toFixed(2)}
+                                                        {(detalle.precio).toFixed(2)}
                                                     </li>
                                                 ))}
                                             </ul>
