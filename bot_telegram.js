@@ -64,7 +64,7 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
     });
 
     // Mostrar el carrito al usuario (o hacer algo con la respuesta del carrito)
-    bot.sendMessage(chatId, `¡Hola, ${username}! Te has logueado exitosamente.`);
+    bot.sendMessage(chatId, `¡Hola, ${username}! Te has logueado exitosamente. Usa el comando /comandos para ver lo que puedes hacer.`);
 
   } catch (error) {
     console.error('Error:', error);
@@ -223,13 +223,25 @@ bot.on('callback_query', async (query) => {
   const itemId = data[1];
 
   if (action === 'select') {
-    // Guardar la selección pendiente para este chat
-    pendingSelections[chatId] = { menuId: itemId };
+    try {
+      // Obtener información del menú seleccionado
+      const menuResponse = await axios.get(`http://localhost:8080/menu`);
+      const menuItem = menuResponse.data.find(item => item.id == itemId);
 
-    bot.sendMessage(chatId, 'Por favor, ingresa la cantidad que deseas agregar:');
+      if (!menuItem) {
+        bot.sendMessage(chatId, 'No se encontró el menú seleccionado. Por favor, intenta nuevamente.');
+        return;
+      }
+
+      // Guardar la selección pendiente para este chat
+      pendingSelections[chatId] = { menuId: itemId, menuName: menuItem.nombre };
+
+      bot.sendMessage(chatId, `Has seleccionado *${menuItem.nombre}*. Por favor, ingresa la cantidad que deseas agregar:`, { parse_mode: 'Markdown' });
+    } catch (error) {
+      console.error('Error al obtener el menú seleccionado:', error.message);
+      bot.sendMessage(chatId, 'Ocurrió un error al obtener los detalles del menú seleccionado.');
+    }
   } else if (action === 'eliminar') {
-    console.log(`Intentando eliminar el ítem con ID: ${itemId} del carrito ${userSessions[chatId].carritoId}`);
-    
     try {
       const carritoId = userSessions[chatId].carritoId;
       const response = await axios.delete(`http://localhost:8080/carrito/eliminar/${carritoId}/${itemId}`, {
@@ -237,8 +249,6 @@ bot.on('callback_query', async (query) => {
           'Content-Type': 'application/json'
         }
       });
-
-      console.log('Respuesta del servidor:', response.status);
 
       if (response.status >= 200 && response.status < 300) {
         bot.sendMessage(chatId, '¡El producto ha sido eliminado del carrito!');
@@ -288,7 +298,7 @@ bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
 
   if (pendingSelections[chatId]) {
-    const menuId = pendingSelections[chatId].menuId;
+    const { menuId, menuName } = pendingSelections[chatId];
     const quantity = parseInt(msg.text, 10);
 
     if (isNaN(quantity) || quantity <= 0) {
@@ -296,11 +306,60 @@ bot.on('message', async (msg) => {
       return;
     }
 
-    // Llamar a la función para agregar al carrito
-    await addToCart(chatId, menuId, quantity);
+    try {
+      // Llamar a la función para agregar al carrito
+      const userId = userSessions[chatId]?.id;
+      const payload = {
+        usuarioId: parseInt(userId, 10),
+        menuId: parseInt(menuId, 10),
+        cantidad: parseInt(quantity, 10),
+      };
+
+      const response = await axios.post('http://localhost:8080/carrito/agregar', payload);
+
+      if (response.status === 200) {
+        bot.sendMessage(chatId, `¡${menuName} ha sido agregado al carrito con éxito!`);
+      } else {
+        bot.sendMessage(chatId, 'No se pudo agregar el item al carrito.');
+      }
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error.message);
+      bot.sendMessage(chatId, 'Ocurrió un error al intentar agregar el item al carrito.');
+    }
 
     // Limpiar la selección pendiente
     delete pendingSelections[chatId];
   }
 });
 
+
+// Comando para mostrar la lista de comandos disponibles
+bot.onText(/\/comandos/, (msg) => {
+  const chatId = msg.chat.id;
+
+  const comandos = `
+📜 *Lista de Comandos Disponibles:*
+  
+1. *\/login <usuario> <contraseña>*  
+   Inicia sesión en el sistema.
+
+2. *\/logout*  
+   Cierra tu sesión actual.
+
+3. *\/menu*  
+   Muestra el menú disponible con los platillos y precios.
+
+4. *\/carrito*  
+   Muestra los artículos en tu carrito de compras.
+
+5. *\/pagar*  
+   Procesa el pago de tu carrito y lo vacía.
+
+6. *\/comandos*  
+   Muestra esta lista de comandos.
+
+🛠 Si tienes dudas, no dudes en usar este comando nuevamente.
+  `;
+
+  bot.sendMessage(chatId, comandos, { parse_mode: 'Markdown' });
+});
