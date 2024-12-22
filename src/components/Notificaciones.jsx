@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import '../styles/Notifications.css';
 
 const Notifications = ({ userData, setUnreadCount }) => {
   const [notifications, setNotifications] = useState([]);
@@ -6,32 +7,43 @@ const Notifications = ({ userData, setUnreadCount }) => {
   useEffect(() => {
     if (userData) {
       fetch(`http://localhost:8080/notificaciones/usuario/${userData.id}`)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           // Filtrar notificaciones dependiendo de si es admin o no
           const filteredNotifications = data.filter((notification) => {
-            return notification.tipoNotificacion === "USUARIO"; // Solo "USUARIO" si no es admin
+            return notification.tipoNotificacion === "USUARIO";
           });
+
+          // Ordenar por fecha descendente (nuevas primero)
+          filteredNotifications.sort(
+            (a, b) => new Date(b.fecha) - new Date(a.fecha)
+          );
+
           setNotifications(filteredNotifications);
 
           // Contar las notificaciones no leídas
-          const unreadCount = filteredNotifications.filter(notification => !notification.leida).length;
-          setUnreadCount(unreadCount); // Actualiza el contador en el App.jsx
+          const unreadCount = filteredNotifications.filter(
+            (notification) => !notification.leida
+          ).length;
+          setUnreadCount(unreadCount);
         })
-        .catch((error) => console.error('Error fetching notifications:', error));
+        .catch((error) => console.error("Error fetching notifications:", error));
     }
   }, [userData, setUnreadCount]);
 
   return (
-    <div>
-      <h3>Notificaciones</h3>
-      <ul>
+    <div className="notifications-container">
+      <h3 className="notifications-title">Notificaciones</h3>
+      <ul className="notifications-list">
         {notifications.map((notification) => (
-          <li key={notification.id}>
-            <div style={{ fontWeight: notification.leida ? 'normal' : 'bold' }}>
-              {notification.mensaje} {/* Aquí se muestra el mensaje del cambio de estado */}
-            </div>
-            <small>{new Date(notification.fecha).toLocaleString()}</small>
+          <li
+            key={notification.id}
+            className={`notification-item ${notification.leida ? 'read' : 'unread'}`}
+          >
+            <div className="notification-message">{notification.mensaje}</div>
+            <small className="notification-date">
+              {new Date(notification.fecha).toLocaleString()}
+            </small>
           </li>
         ))}
       </ul>

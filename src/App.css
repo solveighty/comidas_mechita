@@ -1,4 +1,4 @@
-/* Estilos globales */
+
 body {
     margin: 0;
     padding: 0;
@@ -16,7 +16,6 @@ main {
     margin: 0 auto;
 }
 
-/* Estilos para las cards */
 .card {
     background: var(--surface-card);
     padding: 2rem;
@@ -24,7 +23,6 @@ main {
     margin-bottom: 2rem;
 }
 
-/* Estilos para el grid */
 .grid {
     display: grid;
     gap: 2rem;
@@ -51,7 +49,6 @@ main {
     margin-top: 1rem;
 }
 
-/* Estilos para formularios */
 .form-container {
     max-width: 500px;
     margin: 0 auto;
@@ -67,4 +64,4 @@ main {
     font-weight: 500;
 }
 
-/* Otros estilos que tenías antes... */
+

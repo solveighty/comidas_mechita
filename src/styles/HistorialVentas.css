@@ -1,0 +1,67 @@
+.historial-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+.rango-dropdown {
+    width: 200px;
+}
+
+.rango-title {
+    font-size: 1.2rem;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.loading-skeleton {
+    border-radius: 8px;
+}
+
+.ventas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.venta-card {
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background-color: #fff;
+    transition: box-shadow 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.venta-card:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.venta-details {
+    font-size: 1rem;
+    margin-top: 10px;
+    color: #666;
+}
+
+.venta-items {
+    margin-top: 10px;
+}
+
+.venta-items ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.total-container {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #444;
+}

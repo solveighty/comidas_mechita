@@ -1,0 +1,88 @@
+.pedidos-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .pedido-card {
+    border-left: 4px solid #2196f3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1000px;
+  }
+  
+  .pedido-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .estado-label {
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: white;
+  }
+  
+  .estado-en-proceso {
+    background-color: orange;
+  }
+  
+  .estado-en-transito {
+    background-color: blue;
+  }
+  
+  .estado-entregado {
+    background-color: green;
+  }
+  
+  .estado-desconocido {
+    background-color: gray;
+  }
+  
+  .pedido-detalles {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .detalle-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .detalle-item:last-child {
+    border-bottom: none;
+  }
+  
+  .detalle-nombre {
+    font-weight: bold;
+  }
+  
+  .detalle-cantidad,
+  .detalle-precio {
+    color: #555;
+  }
+  
+  .pedido-detalles {
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.detalle-item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.detalle-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-start;
+}

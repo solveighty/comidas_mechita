@@ -1,0 +1,68 @@
+/* Contenedor principal */
+.notifications-container {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Título */
+  .notifications-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  /* Lista de notificaciones */
+  .notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Elementos de la lista */
+  .notification-item {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notification-item.unread {
+    background-color: #e7f3ff;
+  }
+  
+  .notification-item.read {
+    background-color: #ffffff;
+  }
+  
+  .notification-item:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Mensaje */
+  .notification-message {
+    font-size: 1rem;
+    color: #444;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  /* Fecha */
+  .notification-date {
+    font-size: 0.85rem;
+    color: #666;
+    text-align: right;
+  }
+  

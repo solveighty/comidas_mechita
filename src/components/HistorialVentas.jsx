@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
+import { Card } from 'primereact/card';
+import { Skeleton } from 'primereact/skeleton';
+import '../styles/HistorialVentas.css';
 
 export default function HistorialVentas({ userData, toast }) {
     const [ventas, setVentas] = useState([]);
@@ -8,7 +11,6 @@ export default function HistorialVentas({ userData, toast }) {
     const [cargando, setCargando] = useState(false);
 
     useEffect(() => {
-        // Cuando se cambia el rango, obtén las ventas correspondientes
         fetchVentas();
     }, [rango]);
 
@@ -48,16 +50,14 @@ export default function HistorialVentas({ userData, toast }) {
         { label: 'Anual', value: 'anual' }
     ];
 
-    // Función para calcular el total de la venta
     const calcularTotalVenta = (detalles) => {
         return detalles.reduce((total, detalle) => total + detalle.precio * detalle.cantidad, 0);
     };
 
-    // Calcular el total de todas las ventas
     const totalVentas = ventas.reduce((total, venta) => total + calcularTotalVenta(venta.detalles), 0);
 
     return (
-        <div>
+        <div className="historial-container">
             <div className="p-d-flex p-jc-between p-ai-center">
                 <h3>Historial de Ventas</h3>
                 <div>
@@ -66,36 +66,45 @@ export default function HistorialVentas({ userData, toast }) {
                         options={opcionesRango}
                         onChange={(e) => setRango(e.value)}
                         placeholder="Selecciona un rango"
+                        className="rango-dropdown"
                     />
                 </div>
             </div>
 
             {cargando ? (
-                <div>Cargando...</div>
+                <div className="loading-container">
+                    <Skeleton width="100%" height="50px" className="loading-skeleton" />
+                    <Skeleton width="100%" height="50px" className="loading-skeleton" />
+                    <Skeleton width="100%" height="50px" className="loading-skeleton" />
+                </div>
             ) : (
                 <div>
-                    <h4>Ventas para el rango {rango}:</h4>
+                    <h4 className="rango-title">Ventas para el rango {rango}:</h4>
                     {ventas.length > 0 ? (
-                        <div>
-                            <ul>
-                                {ventas.map((venta, index) => (
-                                    <li key={index}>
-                                        <strong>Comprador:</strong> {venta.usuario.nombre} ({venta.usuario.usuario})<br />
-                                        <strong>Fecha:</strong> {venta.fechaCompra}<br />
-                                        <strong>Total del pedido:</strong> ${calcularTotalVenta(venta.detalles).toFixed(2)}<br />
-                                        <strong>Detalles:</strong>
-                                        <ul>
-                                            {venta.detalles.map((detalle, idx) => (
-                                                <li key={idx}>
-                                                    {detalle.nombreMenu} x{detalle.cantidad} = $
-                                                    {(detalle.precio * detalle.cantidad).toFixed(2)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </li>
-                                ))}
-                            </ul>
-                            <h4>Total de las ventas: ${totalVentas.toFixed(2)}</h4>
+                        <div className="ventas-list">
+                            {ventas.map((venta, index) => (
+                                <Card key={index} className="venta-card">
+                                    <h5>{venta.usuario.nombre} ({venta.usuario.usuario})</h5>
+                                    <div className="venta-details">
+                                        <p><strong>Fecha:</strong> {venta.fechaCompra}</p>
+                                        <p><strong>Total del pedido:</strong> ${calcularTotalVenta(venta.detalles).toFixed(2)}</p>
+                                        <div className="venta-items">
+                                            <strong>Detalles:</strong>
+                                            <ul>
+                                                {venta.detalles.map((detalle, idx) => (
+                                                    <li key={idx}>
+                                                        {detalle.nombreMenu} x{detalle.cantidad} = $
+                                                        {(detalle.precio * detalle.cantidad).toFixed(2)}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                            <div className="total-container">
+                                <h4>Total de las ventas: ${totalVentas.toFixed(2)}</h4>
+                            </div>
                         </div>
                     ) : (
                         <p>No se encontraron ventas para este rango.</p>

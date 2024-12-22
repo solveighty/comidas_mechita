@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Dropdown } from 'primereact/dropdown';
+import '../styles/Pedido.css';
 
 export default function Pedido({ userData }) {
     const [pedidos, setPedidos] = useState([]);
@@ -14,7 +15,6 @@ export default function Pedido({ userData }) {
 
     useEffect(() => {
         if (userData && userData.id) {
-            // Hacer la solicitud para obtener los pedidos del usuario
             fetch(`http://localhost:8080/historial/all?userId=${userData.id}`)
                 .then((response) => {
                     if (!response.ok) {
@@ -23,7 +23,7 @@ export default function Pedido({ userData }) {
                     return response.json();
                 })
                 .then((data) => {
-                    setPedidos(data); // Establecer los pedidos obtenidos
+                    setPedidos(data);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -34,9 +34,8 @@ export default function Pedido({ userData }) {
     }, [userData]);
 
     const handleEstadoChange = (pedidoId, nuevoEstado) => {
-        if (!userData || !userData.id) return; // Asegurarse de que el usuario está autenticado como admin
+        if (!userData || !userData.id) return;
 
-        // Llamar al endpoint PUT para actualizar el estado del pedido
         fetch(`http://localhost:8080/historial/actualizar-estado/${pedidoId}?userId=${userData.id}&nuevoEstado=${nuevoEstado}`, {
             method: 'PUT',
         })
@@ -47,7 +46,6 @@ export default function Pedido({ userData }) {
                 return response.json();
             })
             .then(() => {
-                // Actualizar el estado del pedido localmente después de la actualización
                 setPedidos((prevPedidos) =>
                     prevPedidos.map((pedido) =>
                         pedido.id === pedidoId ? { ...pedido, estadoCompra: nuevoEstado } : pedido
@@ -63,46 +61,45 @@ export default function Pedido({ userData }) {
         const total = pedido.detalles.reduce((acc, item) => acc + item.precio, 0);
 
         return (
-            <Card key={pedido.id} className="mb-4">
-                <div className="p-fluid">
-                    <div className="p-grid">
-                        <div className="p-col-12 p-md-4">
-                            <div className="font-bold">ID Pedido: {pedido.id}</div>
-                            <div>Fecha de Compra: {new Date(pedido.fechaCompra).toLocaleDateString()}</div>
-                            <div>Cliente: {pedido.usuario.nombre}</div>
-                            <div>Estado: {pedido.estadoCompra}</div>
-
-                            {/* Dropdown para cambiar el estado */}
-                            <Dropdown
-                                value={pedido.estadoCompra}
-                                options={estadoOptions}
-                                onChange={(e) => handleEstadoChange(pedido.id, e.value)}
-                                placeholder="Seleccionar estado"
-                            />
-                        </div>
-                        <div className="p-col-12 p-md-8">
-                            <div className="font-bold">Detalles del Pedido:</div>
-                            <ul>
-                                {pedido.detalles.map((detalle) => (
-                                    <li key={detalle.id}>
-                                        <div>{detalle.nombreMenu} x{detalle.cantidad} - {detalle.precio} USD</div>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="font-bold">Total: {total} USD</div>
-                        </div>
+            <Card key={pedido.id} className="pedido-card">
+                <div className="pedido-info">
+                    <div className="pedido-header">
+                        <span>ID Pedido: <strong>{pedido.id}</strong></span>
+                        <span>Fecha: {new Date(pedido.fechaCompra).toLocaleDateString()}</span>
                     </div>
+                    <div>Cliente: <strong>{pedido.usuario.nombre}</strong></div>
+                    <div>
+                        Estado: 
+                        <Dropdown
+                            value={pedido.estadoCompra}
+                            options={estadoOptions}
+                            onChange={(e) => handleEstadoChange(pedido.id, e.value)}
+                            className="estado-dropdown"
+                            placeholder="Seleccionar estado"
+                        />
+                    </div>
+                </div>
+                <div className="pedido-detalles">
+                    <strong>Detalles del Pedido:</strong>
+                    <ul>
+                        {pedido.detalles.map((detalle) => (
+                            <li key={detalle.id}>
+                                {detalle.nombreMenu} x{detalle.cantidad} - ${detalle.precio.toFixed(2)} USD
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="pedido-total">Total: <strong>${total.toFixed(2)} USD</strong></div>
                 </div>
             </Card>
         );
     };
 
     return (
-        <div className="p-d-flex p-flex-column p-ai-center">
+        <div className="pedidos-container">
             {loading ? (
-                <p>Cargando...</p> // Mensaje mientras se cargan los datos
+                <p className="loading-text">Cargando...</p>
             ) : (
-                <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
+                <div className="pedidos-list">
                     {pedidos
                         .filter((pedido) => pedido.estadoCompra !== 'ENTREGADO') // Filtrar los pedidos que no están entregados
                         .map(itemTemplate)}

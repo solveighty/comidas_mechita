@@ -4,6 +4,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import '../styles/UpdateMenu.css'; // Importar archivo CSS para el estilo
 
 export default function UpdateMenu({ userId, toast, onClose }) {
     const [menus, setMenus] = useState([]); // Lista de menús
@@ -106,7 +107,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
     };
 
     return (
-        <div>
+        <div className="update-menu-container">
             <div className="p-field">
                 <label htmlFor="menu" className="p-mb-2">Seleccionar Menú</label>
                 <Dropdown
@@ -115,7 +116,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                     options={menus.map((menu) => ({ label: menu.nombre, value: menu.id }))}
                     onChange={(e) => handleMenuSelect(e.value)}
                     placeholder="Selecciona un menú"
-                    className="p-mb-3"
+                    className="p-mb-3 custom-dropdown"
                 />
             </div>
 
@@ -127,6 +128,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                             id="nombre"
                             value={menuData.nombre}
                             onChange={(e) => handleChange(e, 'nombre')}
+                            className="custom-input"
                         />
                     </div>
                     <div className="p-field">
@@ -135,6 +137,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                             id="descripcion"
                             value={menuData.descripcion}
                             onChange={(e) => handleChange(e, 'descripcion')}
+                            className="custom-input"
                         />
                     </div>
                     <div className="p-field">
@@ -146,6 +149,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                             mode="currency"
                             currency="USD"
                             locale="es-US"
+                            className="custom-input"
                         />
                     </div>
                     <div className="p-field">
@@ -154,6 +158,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                             id="imagen"
                             value={menuData.imagen}
                             onChange={(e) => handleChange(e, 'imagen')}
+                            className="custom-input"
                         />
                     </div>
                     <div className="p-field">
@@ -164,12 +169,23 @@ export default function UpdateMenu({ userId, toast, onClose }) {
                             options={categorias}
                             onChange={(e) => handleChange(e, 'categoria')}
                             placeholder="Selecciona una categoría"
+                            className="custom-dropdown"
                         />
                     </div>
-                    <Button label="Actualizar" icon="pi pi-check" onClick={handleUpdate} className="p-button-success p-mt-3" />
+                    <Button
+                        label="Actualizar"
+                        icon="pi pi-check"
+                        onClick={handleUpdate}
+                        className="p-button-success p-mt-3 custom-button"
+                    />
                 </>
             )}
-            <Button label="Cerrar" icon="pi pi-times" onClick={onClose} className="p-button-secondary p-mt-3" />
+            <Button
+                label="Cerrar"
+                icon="pi pi-times"
+                onClick={onClose}
+                className="p-button-secondary p-mt-3 custom-button"
+            />
         </div>
     );
 }

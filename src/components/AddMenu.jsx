@@ -5,6 +5,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import '../styles/AddMenu.css'; // Importar archivo CSS con el estilo mejorado
 
 const AddMenu = ({ userId, onClose }) => {
   const [nombre, setNombre] = useState('');
@@ -84,77 +85,85 @@ const AddMenu = ({ userId, onClose }) => {
   };
 
   return (
-    <div>
+    <div className="add-menu-container">
       <Toast ref={toast} />
-      <div className="p-fluid p-formgrid p-grid">
-        <div className="p-field p-col-12">
-          <label htmlFor="nombre">Nombre del Menú</label>
-          <InputText
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Ingrese el nombre del menú"
+      <div className="form-container">
+        <h2 className="form-title">Crear Nuevo Menú</h2>
+        <div className="p-fluid p-formgrid p-grid">
+          <div className="p-field p-col-12">
+            <label htmlFor="nombre">Nombre del Menú</label>
+            <InputText
+              id="nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ingrese el nombre del menú"
+              className="input-field"
+            />
+          </div>
+          <div className="p-field p-col-12">
+            <label htmlFor="descripcion">Descripción</label>
+            <InputTextarea
+              id="descripcion"
+              rows={3}
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Ingrese una descripción"
+              className="input-field"
+            />
+          </div>
+          <div className="p-field p-col-6">
+            <label htmlFor="precio">Precio</label>
+            <InputNumber
+              id="precio"
+              value={precio}
+              onValueChange={(e) => setPrecio(e.value)}
+              mode="currency"
+              currency="USD"
+              locale="en-US"
+              className="input-field"
+            />
+          </div>
+          <div className="p-field p-col-6">
+            <label htmlFor="categoria">Categoría</label>
+            <Dropdown
+              id="categoria"
+              value={categoria}
+              options={categorias}
+              onChange={(e) => setCategoria(e.value)}
+              placeholder="Seleccione una categoría"
+              className="input-field"
+            />
+          </div>
+          <div className="p-field p-col-12">
+            <label htmlFor="imagen">URL de la Imagen</label>
+            <InputText
+              id="imagen"
+              value={imagen}
+              onChange={(e) => setImagen(e.target.value)}
+              placeholder="Ingrese la URL de la imagen"
+              className="input-field"
+            />
+          </div>
+        </div>
+        <div className="button-container">
+          <Button
+            label="Crear Menú"
+            icon="pi pi-check"
+            onClick={handleSubmit}
+            className="submit-button"
+            loading={loading}
+          />
+          <Button
+            label="Cancelar"
+            icon="pi pi-times"
+            className="cancel-button"
+            onClick={onClose}
+            disabled={loading}
           />
         </div>
-        <div className="p-field p-col-12">
-          <label htmlFor="descripcion">Descripción</label>
-          <InputTextarea
-            id="descripcion"
-            rows={3}
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            placeholder="Ingrese una descripción"
-          />
-        </div>
-        <div className="p-field p-col-6">
-          <label htmlFor="precio">Precio</label>
-          <InputNumber
-            id="precio"
-            value={precio}
-            onValueChange={(e) => setPrecio(e.value)}
-            mode="currency"
-            currency="USD"
-            locale="en-US"
-          />
-        </div>
-        <div className="p-field p-col-6">
-          <label htmlFor="categoria">Categoría</label>
-          <Dropdown
-            id="categoria"
-            value={categoria}
-            options={categorias}
-            onChange={(e) => setCategoria(e.value)}
-            placeholder="Seleccione una categoría"
-          />
-        </div>
-        <div className="p-field p-col-12">
-          <label htmlFor="imagen">URL de la Imagen</label>
-          <InputText
-            id="imagen"
-            value={imagen}
-            onChange={(e) => setImagen(e.target.value)}
-            placeholder="Ingrese la URL de la imagen"
-          />
-        </div>
-      </div>
-      <div className="p-mt-3">
-        <Button
-          label="Crear Menú"
-          icon="pi pi-check"
-          onClick={handleSubmit}
-          className="p-mr-2"
-          loading={loading}
-        />
-        <Button
-          label="Cancelar"
-          icon="pi pi-times"
-          className="p-button-secondary"
-          onClick={onClose}
-          disabled={loading}
-        />
       </div>
     </div>
   );
 };
 
-export default AddMenu; 
+export default AddMenu;

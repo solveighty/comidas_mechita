@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { TreeTable } from 'primereact/treetable';
-import { Column } from 'primereact/column';
-import { PiTruck } from 'react-icons/pi'; // Ícono de camión
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Message } from 'primereact/message';
+import { Dropdown } from 'primereact/dropdown';
+import '../styles/Pedidos.css';
 
 function Pedidos({ userId }) {
   const [pedidos, setPedidos] = useState([]);
+  const [filteredPedidos, setFilteredPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedPedidos, setExpandedPedidos] = useState({});
+  const [selectedEstado, setSelectedEstado] = useState('TODOS');
+
+  const estadosDisponibles = [
+    { label: 'Todos', value: 'TODOS' },
+    { label: 'En proceso', value: 'EN_PROCESO' },
+    { label: 'En tránsito', value: 'EN_TRANSITO' },
+    { label: 'Entregado', value: 'ENTREGADO' },
+  ];
 
   useEffect(() => {
-    // Cargar el historial de pedidos
     const fetchHistorialPedidos = async () => {
       try {
         const response = await fetch(`http://localhost:8080/historial/${userId}`);
@@ -17,7 +29,14 @@ function Pedidos({ userId }) {
           throw new Error('Error al obtener el historial de pedidos');
         }
         const data = await response.json();
-        setPedidos(data);
+
+        // Ordenar pedidos por fecha de compra (nuevos primero)
+        const pedidosOrdenados = data.sort(
+          (a, b) => new Date(b.fechaCompra) - new Date(a.fechaCompra)
+        );
+
+        setPedidos(pedidosOrdenados);
+        setFilteredPedidos(pedidosOrdenados); // Inicialmente mostrar todos los pedidos
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -28,82 +47,113 @@ function Pedidos({ userId }) {
     fetchHistorialPedidos();
   }, [userId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  useEffect(() => {
+    // Filtrar pedidos según el estado seleccionado
+    if (selectedEstado === 'TODOS') {
+      setFilteredPedidos(pedidos);
+    } else {
+      setFilteredPedidos(pedidos.filter((pedido) => pedido.estadoCompra === selectedEstado));
+    }
+  }, [selectedEstado, pedidos]);
 
-  // Función para calcular el total de cada pedido
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <ProgressSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <Message severity="error" text={error} />;
+  }
+
   const calcularTotal = (detalles) => {
-    return detalles.reduce((total, detalle) => {
-      return total + detalle.precio ; // Multiplicar por cantidad
-    }, 0).toFixed(2); // Total con cantidades
+    return detalles
+      .reduce((total, detalle) => total + detalle.precio * detalle.cantidad, 0)
+      .toFixed(2);
   };
 
-  // Función para obtener el ícono y texto del estado
-  const getEstadoIcon = (estado) => {
+  const getEstadoLabel = (estado) => {
     switch (estado) {
       case 'EN_PROCESO':
-        return { icon: <PiTruck style={{ color: 'orange' }} />, text: 'En proceso' };
+        return <span className="estado-label estado-en-proceso">En proceso</span>;
       case 'EN_TRANSITO':
-        return { icon: <PiTruck style={{ color: 'blue' }} />, text: 'En tránsito' };
+        return <span className="estado-label estado-en-transito">En tránsito</span>;
       case 'ENTREGADO':
-        return { icon: <PiTruck style={{ color: 'green' }} />, text: 'Entregado' };
+        return <span className="estado-label estado-entregado">Entregado</span>;
       default:
-        return { icon: <PiTruck style={{ color: 'gray' }} />, text: 'Estado desconocido' };
+        return <span className="estado-label estado-desconocido">Desconocido</span>;
     }
   };
 
-  // Transformar los pedidos a nodos
-  const transformarPedidosANodos = (pedidos) => {
-    return pedidos.map((pedido) => {
-      const estado = pedido.estadoCompra || 'EN_PROCESO'; // Estado del pedido
-      const total = calcularTotal(pedido.detalles); // Calcular total del pedido
-
-      return {
-        key: pedido.id,
-        data: {
-          fechaCompra: new Date(pedido.fechaCompra).toLocaleString(),
-          estado: getEstadoIcon(estado),
-          total, // Asignamos el total calculado
-          usuario: `${pedido.usuario.nombre} (${pedido.usuario.usuario})`,
-        },
-        children: pedido.detalles.map((detalle) => ({
-          key: detalle.id,
-          data: {
-            nombreMenu: detalle.nombreMenu,
-            cantidad: detalle.cantidad,
-            precio: detalle.precio,
-            estado, // El mismo estado para todos los detalles
-          },
-        })),
-      };
-    });
+  const toggleExpand = (pedidoId) => {
+    setExpandedPedidos((prevState) => ({
+      ...prevState,
+      [pedidoId]: !prevState[pedidoId],
+    }));
   };
 
-  const nodes = transformarPedidosANodos(pedidos);
-
   return (
-    <div className="card">
-      <TreeTable value={nodes} tableStyle={{ minWidth: '50rem' }}>
-        <Column field="fechaCompra" header="Fecha de compra" expander />
-        <Column
-          field="estado"
-          header="Estado"
-          body={(rowData) => {
-            const estado = rowData.data.estado || { icon: <PiTruck />, text: 'Desconocido' };
-            return (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {estado.icon}
-                <span style={{ marginLeft: '8px' }}>{estado.text}</span>
-              </div>
-            );
-          }}
+    <div className="p-m-4 pedidos-container">
+      <h2>Historial de Pedidos</h2>
+      <p>Consulta tus pedidos realizados y sus detalles.</p>
+
+      {/* Dropdown para filtrar por estado */}
+      <div className="dropdown-container">
+        <Dropdown
+          value={selectedEstado}
+          options={estadosDisponibles}
+          onChange={(e) => setSelectedEstado(e.value)}
+          placeholder="Selecciona un estado"
+          className="p-mb-3"
         />
-        <Column field="usuario" header="Usuario" />
-        <Column field="total" header="Total" body={(rowData) => <span>${rowData.data.total}</span>} />
-        <Column field="nombreMenu" header="Nombre del Plato" />
-        <Column field="cantidad" header="Cantidad" />
-        <Column field="precio" header="Precio" />
-      </TreeTable>
+      </div>
+
+      <div className="p-grid p-dir-col ">
+        {filteredPedidos.map((pedido) => (
+          <Card
+            key={pedido.id}
+            title={`Pedido #${pedido.id}`}
+            subTitle={`Fecha: ${new Date(pedido.fechaCompra).toLocaleString()}`}
+            className="pedido-card p-mb-3"
+          >
+            <div className="pedido-info">
+              <div className="pedido-estado">{getEstadoLabel(pedido.estadoCompra)}</div>
+              <div className="pedido-total">Total: ${calcularTotal(pedido.detalles)}</div>
+              <div className="pedido-usuario">Usuario: {`${pedido.usuario.nombre} (${pedido.usuario.usuario})`}</div>
+            </div>
+            <Button
+              label={expandedPedidos[pedido.id] ? 'Ocultar detalles' : 'Ver más'}
+              className="p-button-outlined p-mt-2"
+              onClick={() => toggleExpand(pedido.id)}
+              style={{
+                minWidth: '120px',
+                backgroundColor: 'transparent',
+                color: '#fff',
+                borderColor: '#ffffff',
+              }}
+            />
+            {expandedPedidos[pedido.id] && (
+              <div className="pedido-detalles">
+                <h4>Detalles:</h4>
+                <ul>
+                  {pedido.detalles.map((detalle) => (
+                    <li key={detalle.id} className="detalle-item">
+                      <div>
+                        <strong>{detalle.nombreMenu}</strong>
+                      </div>
+                      <div>
+                        Cantidad: {detalle.cantidad} | Precio: ${detalle.precio.toFixed(2)}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
