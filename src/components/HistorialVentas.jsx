@@ -24,7 +24,13 @@ export default function HistorialVentas({ userData, toast }) {
                 throw new Error('Error al obtener las ventas');
             }
             const data = await response.json();
-            setVentas(data.historial);
+
+            // Ordenar las ventas por fecha (descendente)
+            const ventasOrdenadas = data.historial.sort((a, b) =>
+                new Date(b.fechaCompra) - new Date(a.fechaCompra)
+            );
+
+            setVentas(ventasOrdenadas);
             toast.current.show({
                 severity: 'success',
                 summary: 'Ventas cargadas',
