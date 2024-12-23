@@ -14,8 +14,10 @@ function RestaurantRegister() {
     password: '',
     confirmPassword: '',
     terms: false,
+    verificationCode: '',
   });
   const [loading, setLoading] = useState(false);
+  const [isCodeSent, setIsCodeSent] = useState(false); // Para controlar si el código fue enviado
   const toast = useRef(null);
   const navigate = useNavigate();
 
@@ -54,46 +56,129 @@ function RestaurantRegister() {
       return;
     }
 
-    // Preparar datos para enviar al backend
-    const userData = {
-      id: 0, // Asumimos que el ID lo genera el backend
-      usuario: username,
-      nombre: fullName,
-      contrasena: password,
-      telefono: '', // Campo opcional
-      email: email,
-      direccion: '', // Campo opcional
-      rol: 'NORMAL', // Rol por defecto
-    };
+    if (!isCodeSent) {
+      try {
+        setLoading(true);
 
-    try {
-      setLoading(true); // Activar indicador de carga
+        // Enviar los datos como URL-encoded
+        const formData = new URLSearchParams();
+        formData.append('email', email);
 
-      // Enviar datos al backend
-      const response = await fetch('http://localhost:8080/usuarios/crearusuario', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+        const response = await fetch('http://localhost:8080/verification/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData.toString(),
+        });
 
-      setLoading(false); // Desactivar indicador de carga
+        setLoading(false);
 
-      if (response.ok) {
+        if (response.ok) {
+          toast.current.show({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Código de verificación enviado a tu correo',
+            life: 3000,
+          });
+          setIsCodeSent(true); // El código fue enviado
+        } else {
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al enviar el código de verificación',
+            life: 3000,
+          });
+        }
+      } catch (error) {
+        setLoading(false);
+        console.error('Error al conectar con el servidor:', error);
         toast.current.show({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Usuario registrado exitosamente',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo conectar con el servidor',
           life: 3000,
         });
-        navigate('/login'); // Redirigir al inicio de sesión
+      }
+      return; // Detener aquí si el código fue enviado
+    }
+
+    // Validación del código de verificación
+    const { verificationCode } = formData;
+    if (!verificationCode) {
+      toast.current.show({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Por favor ingresa el código de verificación',
+        life: 3000,
+      });
+      return;
+    }
+
+    // Verificar el código
+    try {
+      setLoading(true);
+
+      // Enviar los datos como URL-encoded
+      const formData = new URLSearchParams();
+      formData.append('email', email);
+      formData.append('code', verificationCode);
+
+      const response = await fetch('http://localhost:8080/verification/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+
+      setLoading(false);
+
+      if (response.ok) {
+        // Si la verificación es exitosa, crear el usuario
+        const userData = {
+          id: 0, // Asumimos que el ID lo genera el backend
+          usuario: username,
+          nombre: fullName,
+          contrasena: password,
+          telefono: '', // Campo opcional
+          email: email,
+          direccion: '', // Campo opcional
+          rol: 'NORMAL', // Rol por defecto
+        };
+
+        // Enviar datos al backend para crear el usuario
+        const createUserResponse = await fetch('http://localhost:8080/usuarios/crearusuario', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+
+        if (createUserResponse.ok) {
+          toast.current.show({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Usuario registrado exitosamente',
+            life: 3000,
+          });
+          navigate('/login'); // Redirigir al inicio de sesión
+        } else {
+          const errorData = await createUserResponse.json();
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: errorData.message || 'Error al registrar el usuario',
+            life: 3000,
+          });
+        }
       } else {
         const errorData = await response.json();
         toast.current.show({
           severity: 'error',
           summary: 'Error',
-          detail: errorData.message || 'Error al registrar el usuario',
+          detail: errorData.message || 'Código de verificación incorrecto',
           life: 3000,
         });
       }
@@ -186,6 +271,20 @@ function RestaurantRegister() {
             />
           </div>
 
+          {isCodeSent && (
+            <div className="form-group">
+              <label htmlFor="verificationCode">Código de Verificación</label>
+              <InputText
+                id="verificationCode"
+                name="verificationCode"
+                value={formData.verificationCode}
+                onChange={handleChange}
+                placeholder="Ingresa el código enviado a tu correo"
+                className="w-full"
+              />
+            </div>
+          )}
+
           <div className="form-group-checkbox">
             <input
               type="checkbox"
@@ -200,7 +299,7 @@ function RestaurantRegister() {
           </div>
 
           <Button
-            label="Registrar"
+            label={isCodeSent ? 'Verificar y Registrar' : 'Enviar Código de Verificación'}
             icon="pi pi-user-plus"
             loading={loading}
             disabled={loading}

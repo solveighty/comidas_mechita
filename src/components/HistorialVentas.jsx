@@ -7,7 +7,7 @@ import '../styles/HistorialVentas.css';
 
 export default function HistorialVentas({ userData, toast }) {
     const [ventas, setVentas] = useState([]);
-    const [rango, setRango] = useState('diario'); // Por defecto, el rango es diario
+    const [rango, setRango] = useState('diario');
     const [cargando, setCargando] = useState(false);
 
     useEffect(() => {
