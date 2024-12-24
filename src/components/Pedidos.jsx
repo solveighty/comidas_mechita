@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
 import { Dropdown } from 'primereact/dropdown';
+import { Paginator } from 'primereact/paginator';
 import '../styles/Pedidos.css';
 import url_Backend from './config';
 
@@ -14,6 +15,8 @@ function Pedidos({ userId }) {
   const [error, setError] = useState(null);
   const [expandedPedidos, setExpandedPedidos] = useState({});
   const [selectedEstado, setSelectedEstado] = useState('TODOS');
+  const [currentPage, setCurrentPage] = useState(0); // Página actual
+  const [itemsPerPage, setItemsPerPage] = useState(5); // Elementos por página
 
   const estadosDisponibles = [
     { label: 'Todos', value: 'TODOS' },
@@ -31,13 +34,12 @@ function Pedidos({ userId }) {
         }
         const data = await response.json();
 
-        // Ordenar pedidos por fecha de compra (nuevos primero)
         const pedidosOrdenados = data.sort(
           (a, b) => new Date(b.fechaCompra) - new Date(a.fechaCompra)
         );
 
         setPedidos(pedidosOrdenados);
-        setFilteredPedidos(pedidosOrdenados); // Inicialmente mostrar todos los pedidos
+        setFilteredPedidos(pedidosOrdenados);
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -49,25 +51,13 @@ function Pedidos({ userId }) {
   }, [userId]);
 
   useEffect(() => {
-    // Filtrar pedidos según el estado seleccionado
     if (selectedEstado === 'TODOS') {
       setFilteredPedidos(pedidos);
     } else {
       setFilteredPedidos(pedidos.filter((pedido) => pedido.estadoCompra === selectedEstado));
     }
+    setCurrentPage(0); // Reinicia a la primera página al filtrar
   }, [selectedEstado, pedidos]);
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <ProgressSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <Message severity="error" text={error} />;
-  }
 
   const calcularTotal = (detalles) => {
     return detalles
@@ -95,12 +85,33 @@ function Pedidos({ userId }) {
     }));
   };
 
+  const onPageChange = (event) => {
+    setCurrentPage(event.first / itemsPerPage);
+  };
+
+  // Calcular pedidos para la página actual
+  const pedidosPaginados = filteredPedidos.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <ProgressSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <Message severity="error" text={error} />;
+  }
+
   return (
     <div className="p-m-4 pedidos-container">
       <h2>Historial de Pedidos</h2>
       <p>Consulta tus pedidos realizados y sus detalles.</p>
 
-      {/* Dropdown para filtrar por estado */}
       <div className="dropdown-container">
         <Dropdown
           value={selectedEstado}
@@ -111,8 +122,8 @@ function Pedidos({ userId }) {
         />
       </div>
 
-      <div className="p-grid p-dir-col ">
-        {filteredPedidos.map((pedido) => (
+      <div className="p-grid p-dir-col">
+        {pedidosPaginados.map((pedido) => (
           <Card
             key={pedido.id}
             title={`Pedido #${pedido.id}`}
@@ -129,11 +140,10 @@ function Pedidos({ userId }) {
               className="p-button-outlined p-mt-2"
               onClick={() => toggleExpand(pedido.id)}
               style={{
-                minWidth: '120px',
                 backgroundColor: 'transparent',
                 color: '#fff',
                 borderColor: '#ffffff',
-              }}
+            }}
             />
             {expandedPedidos[pedido.id] && (
               <div className="pedido-detalles">
@@ -155,6 +165,13 @@ function Pedidos({ userId }) {
           </Card>
         ))}
       </div>
+
+      <Paginator
+        first={currentPage * itemsPerPage}
+        rows={itemsPerPage}
+        totalRecords={filteredPedidos.length}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

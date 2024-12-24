@@ -4,6 +4,8 @@ import url_Backend from './config';
 
 const Notifications = ({ userData, setUnreadCount }) => {
   const [notifications, setNotifications] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); // Cantidad de notificaciones por página
 
   useEffect(() => {
     if (userData) {
@@ -12,7 +14,7 @@ const Notifications = ({ userData, setUnreadCount }) => {
         .then((data) => {
           // Filtrar notificaciones dependiendo de si es admin o no
           const filteredNotifications = data.filter((notification) => {
-            return notification.tipoNotificacion === "USUARIO";
+            return notification.tipoNotificacion === 'USUARIO';
           });
 
           // Ordenar por fecha descendente (nuevas primero)
@@ -28,15 +30,30 @@ const Notifications = ({ userData, setUnreadCount }) => {
           ).length;
           setUnreadCount(unreadCount);
         })
-        .catch((error) => console.error("Error fetching notifications:", error));
+        .catch((error) => console.error('Error fetching notifications:', error));
     }
   }, [userData, setUnreadCount]);
+
+  // Calcular el índice de las notificaciones que se muestran en la página actual
+  const indexOfLastNotification = currentPage * itemsPerPage;
+  const indexOfFirstNotification = indexOfLastNotification - itemsPerPage;
+  const currentNotifications = notifications.slice(
+    indexOfFirstNotification,
+    indexOfLastNotification
+  );
+
+  // Cambiar de página
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
 
   return (
     <div className="notifications-container">
       <h3 className="notifications-title">Notificaciones</h3>
       <ul className="notifications-list">
-        {notifications.map((notification) => (
+        {currentNotifications.map((notification) => (
           <li
             key={notification.id}
             className={`notification-item ${notification.leida ? 'read' : 'unread'}`}
@@ -48,6 +65,27 @@ const Notifications = ({ userData, setUnreadCount }) => {
           </li>
         ))}
       </ul>
+
+      {/* Controles del paginador */}
+      <div className="pagination-controls">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="pagination-button"
+        >
+          Anterior
+        </button>
+        <span className="pagination-info">
+          Página {currentPage} de {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="pagination-button"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   );
 };

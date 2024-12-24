@@ -1,3 +1,3 @@
-const url_Backend = '192.168.192.7'
+const url_Backend = 'localhost'
 
 export default url_Backend

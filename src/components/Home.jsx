@@ -419,6 +419,9 @@ function Home({ userData }) {
                                         height: '30px', // Botones más pequeños
                                         padding: '0',
                                         fontSize: '16px',
+                                        backgroundColor: 'transparent',
+                                        color: '#fff',
+                                        borderColor: '#ffffff',
                                     }}
                                     onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] - 1)}
                                     disabled={quantities[selectedMenu.id] <= 1}
@@ -439,6 +442,9 @@ function Home({ userData }) {
                                         height: '30px',
                                         padding: '0',
                                         fontSize: '16px',
+                                        backgroundColor: 'transparent',
+                                        color: '#fff',
+                                        borderColor: '#ffffff',
                                     }}
                                     onClick={() => handleQuantityChange(selectedMenu.id, quantities[selectedMenu.id] + 1)}
                                 />

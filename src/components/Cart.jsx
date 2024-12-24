@@ -242,6 +242,11 @@ function Cart({ userData }) {
                                     icon="pi pi-times"
                                     onClick={() => setShowPaymentDialog(false)}
                                     className="p-button-text"
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        color: '#fff',
+                                        borderColor: '#ffffff',
+                                    }}
                                 />
                                 <Button
                                     label="Confirmar Pago"
