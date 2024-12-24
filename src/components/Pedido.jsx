@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Dropdown } from 'primereact/dropdown';
 import '../styles/Pedido.css';
+import url_Backend from './config';
 
 export default function Pedido({ userData }) {
     const [pedidos, setPedidos] = useState([]);
@@ -15,7 +16,7 @@ export default function Pedido({ userData }) {
 
     useEffect(() => {
         if (userData && userData.id) {
-            fetch(`http://localhost:8080/historial/all?userId=${userData.id}`)
+            fetch(`http://${url_Backend}:8080/historial/all?userId=${userData.id}`)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error('Error fetching orders');
@@ -36,7 +37,7 @@ export default function Pedido({ userData }) {
     const handleEstadoChange = (pedidoId, nuevoEstado) => {
         if (!userData || !userData.id) return;
 
-        fetch(`http://localhost:8080/historial/actualizar-estado/${pedidoId}?userId=${userData.id}&nuevoEstado=${nuevoEstado}`, {
+        fetch(`http://${url_Backend}:8080/historial/actualizar-estado/${pedidoId}?userId=${userData.id}&nuevoEstado=${nuevoEstado}`, {
             method: 'PUT',
         })
             .then((response) => {

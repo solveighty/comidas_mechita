@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog } from 'primereact/dialog';
 import { RadioButton } from 'primereact/radiobutton';
 import '../styles/Cart.css';
+import url_Backend from './config';
 
 
 function Cart({ userData }) {
@@ -25,7 +26,7 @@ function Cart({ userData }) {
 
     const fetchCartItems = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/usuarios`);
+            const response = await fetch(`http://${url_Backend}:8080/usuarios`);
 
             if (!response.ok) {
                 throw new Error('Error al cargar el carrito');
@@ -55,7 +56,7 @@ function Cart({ userData }) {
 
     const removeItem = async (carritoId, itemId) => {
         try {
-            const response = await fetch(`http://localhost:8080/carrito/eliminar/${carritoId}/${itemId}`, {
+            const response = await fetch(`http://${url_Backend}:8080/carrito/eliminar/${carritoId}/${itemId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -113,7 +114,7 @@ function Cart({ userData }) {
                 return;
             }
 
-            const response = await fetch(`http://localhost:8080/carrito/pagar/${userData.carrito.id}`, {
+            const response = await fetch(`http://${url_Backend}:8080/carrito/pagar/${userData.carrito.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

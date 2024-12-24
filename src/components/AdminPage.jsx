@@ -9,6 +9,7 @@ import UpdateMenu from './UpdateMenu';
 import HistorialVentas from './HistorialVentas';
 
 
+
 export default function AdminMenu({ userData }) {
     const [displayAddDialog, setDisplayAddDialog] = useState(false);
     const [displayUpdateDialog, setDisplayUpdateDialog] = useState(false);

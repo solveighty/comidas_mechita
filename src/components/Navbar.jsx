@@ -8,7 +8,6 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 
-
 function Navbar({ cartItemsCount, handleNavigation, userMenuItems, userMenu, userData, unreadCount }) {
     return (
         <nav

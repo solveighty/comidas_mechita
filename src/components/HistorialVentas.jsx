@@ -4,6 +4,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
 import { Skeleton } from 'primereact/skeleton';
 import '../styles/HistorialVentas.css';
+import url_Backend from './config';
 
 export default function HistorialVentas({ userData, toast }) {
     const [ventas, setVentas] = useState([]);
@@ -18,7 +19,7 @@ export default function HistorialVentas({ userData, toast }) {
         setCargando(true);
         try {
             const response = await fetch(
-                `http://localhost:8080/historial/ventas?userId=${userData.id}&rango=${rango}`
+                `http://${url_Backend}:8080/historial/ventas?userId=${userData.id}&rango=${rango}`
             );
             if (!response.ok) {
                 throw new Error('Error al obtener las ventas');
@@ -58,8 +59,6 @@ export default function HistorialVentas({ userData, toast }) {
 
     const calcularTotalVenta = (detalles) => {
         return detalles.reduce((total, detalle) => {
-            // Verificar los valores de precio y cantidad
-            console.log('Precio:', detalle.precio, 'Cantidad:', detalle.cantidad);
 
             const totalItem = detalle.precio;
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/Notifications.css';
+import url_Backend from './config';
 
 const Notifications = ({ userData, setUnreadCount }) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (userData) {
-      fetch(`http://localhost:8080/notificaciones/usuario/${userData.id}`)
+      fetch(`http://${url_Backend}:8080/notificaciones/usuario/${userData.id}`)
         .then((response) => response.json())
         .then((data) => {
           // Filtrar notificaciones dependiendo de si es admin o no

@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Link } from 'react-router-dom';
 import '../styles/Login.css';
+import url_Backend from './config';
 
 function Login({ onLogin }) {
     const [username, setUsername] = useState('');
@@ -31,7 +32,7 @@ function Login({ onLogin }) {
             setLoading(true);
 
             const verifyResponse = await fetch(
-                `http://localhost:8080/usuarios/verificarPassword?usuario=${username}&contrasena=${password}`,
+                `http://${url_Backend}:8080/usuarios/verificarPassword?usuario=${username}&contrasena=${password}`,
                 {
                     method: 'POST',
                     headers: {
@@ -41,7 +42,7 @@ function Login({ onLogin }) {
             );
 
             if (verifyResponse.status === 200) {
-                const usersResponse = await fetch('http://localhost:8080/usuarios', {
+                const usersResponse = await fetch(`http://${url_Backend}:8080/usuarios`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

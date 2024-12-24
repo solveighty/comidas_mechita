@@ -4,7 +4,8 @@ import {
     faFacebookF, 
     faInstagram, 
     faTwitter, 
-    faWhatsapp 
+    faWhatsapp,
+    faTelegram 
 } from '@fortawesome/free-brands-svg-icons';
 import { 
     faLocationDot,
@@ -14,18 +15,19 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Contact.css';
 
+
 function Contact() {
     const socialMedia = [
         {
             name: 'Facebook',
             icon: faFacebookF,
-            url: 'https://facebook.com/turestaurante',
+            url: 'https://www.facebook.com/romanpaulov/',
             color: '#1877f2'
         },
         {
             name: 'Instagram',
             icon: faInstagram,
-            url: 'https://instagram.com/turestaurante',
+            url: 'https://www.instagram.com/romanpaulov/',
             color: '#e4405f'
         },
         {
@@ -39,7 +41,13 @@ function Contact() {
             icon: faWhatsapp,
             url: 'https://wa.me/tunumero',
             color: '#25d366'
+        },{
+            name: 'Telegram',
+            icon: faTelegram,
+            url: 'https://web.telegram.org/k/#@ComidasMechita_bot',
+            color: '#0088cc'
         }
+
     ];
 
     return (

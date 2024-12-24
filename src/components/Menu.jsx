@@ -3,6 +3,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import url_Backend from './config';
 
 function Menu({ userData }) {
     const [menus, setMenus] = useState([]);
@@ -21,7 +22,7 @@ function Menu({ userData }) {
     useEffect(() => {
         const fetchMenus = async () => {
             try {
-                const response = await fetch('http://localhost:8080/menu');
+                const response = await fetch(`http://${url_Backend}:8080/menu`);
                 const data = await response.json();
 
                 if (data && data.length > 0) {
@@ -73,7 +74,7 @@ function Menu({ userData }) {
         if (!menuItem || !quantity) return;
 
         try {
-            const response = await fetch('http://localhost:8080/carrito/agregar', {
+            const response = await fetch(`http://${url_Backend}:8080/carrito/agregar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

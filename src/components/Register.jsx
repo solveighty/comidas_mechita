@@ -4,7 +4,8 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import '../styles/RestaurantRegister.css'; // Archivo CSS personalizado
+import '../styles/RestaurantRegister.css'; 
+import url_Backend from './config';
 
 function RestaurantRegister() {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ function RestaurantRegister() {
     verificationCode: '',
   });
   const [loading, setLoading] = useState(false);
-  const [isCodeSent, setIsCodeSent] = useState(false); // Para controlar si el código fue enviado
+  const [isCodeSent, setIsCodeSent] = useState(false); 
   const toast = useRef(null);
   const navigate = useNavigate();
 
@@ -64,7 +65,7 @@ function RestaurantRegister() {
         const formData = new URLSearchParams();
         formData.append('email', email);
 
-        const response = await fetch('http://localhost:8080/verification/send', {
+        const response = await fetch(`http://${url_Backend}:8080/verification/send`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -124,7 +125,7 @@ function RestaurantRegister() {
       formData.append('email', email);
       formData.append('code', verificationCode);
 
-      const response = await fetch('http://localhost:8080/verification/verify', {
+      const response = await fetch(`http://${url_Backend}:8080/verification/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -148,7 +149,7 @@ function RestaurantRegister() {
         };
 
         // Enviar datos al backend para crear el usuario
-        const createUserResponse = await fetch('http://localhost:8080/usuarios/crearusuario', {
+        const createUserResponse = await fetch(`http://${url_Backend}:8080/usuarios/crearusuario`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

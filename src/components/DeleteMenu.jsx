@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import url_Backend from './config';
 
 export default function DeleteMenu({ userId, toast, onClose }) {
     const [menus, setMenus] = useState([]); // Estado para almacenar los menús
 
     // Cargar los menús desde el backend
     useEffect(() => {
-        fetch('http://localhost:8080/menu')
+        fetch(`http://${url_Backend}:8080/menu`)
             .then((response) => response.json())
             .then((data) => setMenus(data))
             .catch((error) => {
@@ -23,7 +24,7 @@ export default function DeleteMenu({ userId, toast, onClose }) {
 
     // Manejar la eliminación de un menú
     const handleDelete = (menuId) => {
-        fetch(`http://localhost:8080/menu/eliminar/${menuId}?userId=${userId}`, {
+        fetch(`http://${url_Backend}:8080/menu/eliminar/${menuId}?userId=${userId}`, {
             method: 'DELETE',
         })
             .then((response) => {

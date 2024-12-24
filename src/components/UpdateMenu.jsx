@@ -5,6 +5,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import '../styles/UpdateMenu.css'; // Importar archivo CSS para el estilo
+import url_Backend from './config';
+
 
 export default function UpdateMenu({ userId, toast, onClose }) {
     const [menus, setMenus] = useState([]); // Lista de menús
@@ -25,7 +27,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
 
     // Cargar los menús desde el backend
     useEffect(() => {
-        fetch('http://localhost:8080/menu')
+        fetch(`http://${url_Backend}:8080/menu`)
             .then((response) => response.json())
             .then((data) => setMenus(data))
             .catch(() => {
@@ -71,7 +73,7 @@ export default function UpdateMenu({ userId, toast, onClose }) {
             return;
         }
 
-        fetch(`http://localhost:8080/menu/editar/${selectedMenu}?userId=${userId}`, {
+        fetch(`http://${url_Backend}:8080/menu/editar/${selectedMenu}?userId=${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

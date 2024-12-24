@@ -5,6 +5,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
 import { Dropdown } from 'primereact/dropdown';
 import '../styles/Pedidos.css';
+import url_Backend from './config';
 
 function Pedidos({ userId }) {
   const [pedidos, setPedidos] = useState([]);
@@ -24,7 +25,7 @@ function Pedidos({ userId }) {
   useEffect(() => {
     const fetchHistorialPedidos = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/historial/${userId}`);
+        const response = await fetch(`http://${url_Backend}:8080/historial/${userId}`);
         if (!response.ok) {
           throw new Error('Error al obtener el historial de pedidos');
         }

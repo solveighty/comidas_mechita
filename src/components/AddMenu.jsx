@@ -6,6 +6,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import '../styles/AddMenu.css'; // Importar archivo CSS con el estilo mejorado
+import url_Backend from './config';
 
 const AddMenu = ({ userId, onClose }) => {
   const [nombre, setNombre] = useState('');
@@ -44,7 +45,7 @@ const AddMenu = ({ userId, onClose }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8080/menu/crearmenu?userId=${userId}`,
+        `http://${url_Backend}:8080/menu/crearmenu?userId=${userId}`,
         {
           method: 'POST',
           headers: {

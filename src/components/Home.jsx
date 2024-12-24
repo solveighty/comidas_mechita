@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import url_Backend from './config';
 
 function Home({ userData }) {
     const toast = useRef(null);
@@ -23,7 +24,7 @@ function Home({ userData }) {
     useEffect(() => {
         const fetchMenus = async () => {
             try {
-                const response = await fetch('http://localhost:8080/menu');
+                const response = await fetch(`http://${url_Backend}:8080/menu`);
                 const data = await response.json();
 
                 if (data && data.length > 0) {
@@ -56,7 +57,7 @@ function Home({ userData }) {
 
     const checkIfItemInCart = async (menuId) => {
         try {
-            const response = await fetch(`http://localhost:8080/usuarios`);
+            const response = await fetch(`http://${url_Backend}:8080/usuarios`);
             if (!response.ok) {
                 throw new Error('Error al verificar el carrito');
             }
@@ -75,10 +76,8 @@ function Home({ userData }) {
     };
 
     const addToCart = async (menuId) => {
-        console.log('userData en addToCart:', userData);
 
         if (!userData || !userData.id) {
-            console.log('No hay userData o userData.id');
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
@@ -103,13 +102,7 @@ function Home({ userData }) {
         try {
             const quantity = quantities[menuId] || 1;
 
-            console.log('Enviando datos:', {
-                usuarioId: userData.id,
-                menuId: menuId,
-                cantidad: quantity
-            });
-
-            const response = await fetch('http://localhost:8080/carrito/agregar', {
+            const response = await fetch(`http://${url_Backend}:8080/carrito/agregar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
