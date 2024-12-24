@@ -34,6 +34,20 @@ public class UsuarioService {
 
     public UsuarioEntity saveUsuario(UsuarioEntity usuario) {
         try {
+            // Verificar si el nombre de usuario ya existe
+            if (usuarioRepository.existsByUsuario(usuario.getUsuario())) {
+                throw new RuntimeException("El nombre de usuario ya está registrado");
+            }
+
+            // Verificar si el teléfono ya existe
+            if (usuarioRepository.existsByTelefono(usuario.getTelefono())) {
+                throw new RuntimeException("El número de teléfono ya está registrado");
+            }
+
+            // Verificar si el correo electrónico ya existe
+            if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+                throw new RuntimeException("El correo electrónico ya está registrado");
+            }
             // Encriptar la contraseña antes de guardarla
             String encodedPassword = PasswordEncoder.encode(usuario.getContrasena());
             usuario.setContrasena(encodedPassword);
@@ -53,7 +67,6 @@ public class UsuarioService {
         }
     }
 
-
     public void deleteUsuario(Long id) {
         Optional<UsuarioEntity> usuario = usuarioRepository.findById(id);
         if (usuario.isPresent()) {
@@ -63,12 +76,30 @@ public class UsuarioService {
         }
     }
 
-
     public UsuarioEntity updateUsuario(Long id, UsuarioEntity usuario) {
         Optional<UsuarioEntity> existingUsuario = usuarioRepository.findById(id);
 
         if (existingUsuario.isPresent()) {
             UsuarioEntity updatedUsuario = existingUsuario.get();
+
+            // Validar si el nombre de usuario ya está en uso por otro usuario
+            if (!updatedUsuario.getUsuario().equals(usuario.getUsuario()) &&
+                    usuarioRepository.existsByUsuario(usuario.getUsuario())) {
+                throw new RuntimeException("El nombre de usuario ya está registrado por otro usuario");
+            }
+
+            // Validar si el correo electrónico ya está en uso por otro usuario
+            if (!updatedUsuario.getEmail().equals(usuario.getEmail()) &&
+                    usuarioRepository.existsByEmail(usuario.getEmail())) {
+                throw new RuntimeException("El correo electrónico ya está registrado por otro usuario");
+            }
+
+            // Validar si el teléfono ya está en uso por otro usuario
+            if (!updatedUsuario.getTelefono().equals(usuario.getTelefono()) &&
+                    usuarioRepository.existsByTelefono(usuario.getTelefono())) {
+                throw new RuntimeException("El número de teléfono ya está registrado por otro usuario");
+            }
+
             updatedUsuario.setUsuario(usuario.getUsuario());
             updatedUsuario.setNombre(usuario.getNombre());
 
@@ -92,7 +123,6 @@ public class UsuarioService {
             throw new RuntimeException("Usuario no encontrado con ID: " + id);
         }
     }
-
 
     public boolean isAdmin(Long userId) {
         return usuarioRepository.findById(userId)

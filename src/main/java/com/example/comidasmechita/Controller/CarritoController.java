@@ -36,7 +36,6 @@ public class CarritoController {
         return new ResponseEntity<>(updatedCarrito, HttpStatus.OK);
     }
 
-
     // Actualizar la cantidad de un ítem en el carrito
     @PutMapping("/actualizar/{carritoItemId}")
     public ResponseEntity<CarritoEntity> updateItemCantidad(

@@ -26,8 +26,8 @@ public class NotificacionEntity {
 
     private LocalDateTime fecha = LocalDateTime.now();
 
-    @Enumerated(EnumType.STRING)  // Usar EnumType.STRING para almacenar el valor como cadena
-    private TipoNotificacion tipoNotificacion;  // Usamos el enum
+    @Enumerated(EnumType.STRING)
+    private TipoNotificacion tipoNotificacion;
 
     public enum TipoNotificacion {
         USUARIO,

@@ -15,7 +15,6 @@ public class NotificacionController {
     @Autowired
     private NotificacionService notificacionService;
 
-
     // Endpoint para obtener las notificaciones no leídas de un usuario
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<?> obtenerNotificacionesNoLeidas(@PathVariable Long usuarioId) {

@@ -22,6 +22,11 @@ public class MenuService {
     }
 
     public MenuEntity saveMenu(MenuEntity menu) {
+        // Verificar si ya existe un menú con el mismo nombre
+        Optional<MenuEntity> existingMenu = menuRepository.findByNombre(menu.getNombre());
+        if (existingMenu.isPresent()) {
+            throw new IllegalArgumentException("El menú con el nombre '" + menu.getNombre() + "' ya existe.");
+        }
         return menuRepository.save(menu);
     }
 

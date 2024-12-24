@@ -139,7 +139,6 @@ public class CarritoService {
         }
     }
 
-
     private double calcularTotal(CarritoEntity carrito) {
         double total = 0.0;
         for (CarritoItemEntity item : carrito.getItems()) {
