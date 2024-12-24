@@ -1,5 +1,3 @@
-const url_Backend = require('./config');
-
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const axios = require('axios');
@@ -28,14 +26,14 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
 
   try {
     // Verificar las credenciales mediante POST
-    const response = await axios.post(`http://${url_Backend}:8080/usuarios/verificarPassword?usuario=${username}&contrasena=${password}`, {}, {
+    const response = await axios.post(`http://localhost:8080/usuarios/verificarPassword?usuario=${username}&contrasena=${password}`, {}, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
     // Si las credenciales son correctas, hacer un GET para obtener todos los usuarios
-    const usersResponse = await axios.get(`http://${url_Backend}:8080/usuarios`, {
+    const usersResponse = await axios.get(`http://localhost:8080/usuarios`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -49,7 +47,7 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
     }
 
     // Verificar si el usuario es admin
-    const isAdminResponse = await axios.get(`http://${url_Backend}:8080/usuarios/${user.id}/esAdmin`);
+    const isAdminResponse = await axios.get(`http://localhost:8080/usuarios/${user.id}/esAdmin`);
     const isAdmin = isAdminResponse.data;
 
     // Guardar los detalles del usuario y el estado de admin en la sesión
@@ -64,7 +62,7 @@ bot.onText(/\/login (.+)/, async (msg, match) => {
     const userId = user.id;
 
     // Realizar un GET para obtener el carrito del usuario usando su id
-    const carritoResponse = await axios.get(`http://${url_Backend}:8080/carrito/${userId}`, {
+    const carritoResponse = await axios.get(`http://localhost:8080/carrito/${userId}`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -113,7 +111,7 @@ const addToCart = async (chatId, menuId, quantity) => {
       cantidad: parseInt(quantity, 10),
     };
 
-    const response = await axios.post(`http://${url_Backend}:8080/carrito/agregar`, payload);
+    const response = await axios.post(`http://localhost:8080/carrito/agregar`, payload);
 
     if (response.status === 200) {
       bot.sendMessage(chatId, `Platillo agregado al carrito con éxito.`);
@@ -137,7 +135,7 @@ bot.onText(/\/menu/, async (msg) => {
 
   try {
     // Obtener el menú desde el backend
-    const response = await axios.get(`http://${url_Backend}:8080/menu`);
+    const response = await axios.get(`http://localhost:8080/menu`);
     const menuItems = response.data;
 
     // Crear una lista de botones con los elementos del menú
@@ -173,7 +171,7 @@ bot.onText(/\/carrito/, async (msg) => {
 
   try {
     // Obtener el carrito del usuario desde el backend
-    const carritoResponse = await axios.get(`http://${url_Backend}:8080/carrito/${userId}`, {
+    const carritoResponse = await axios.get(`http://localhost:8080/carrito/${userId}`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -233,7 +231,7 @@ bot.on('callback_query', async (query) => {
   if (action === 'select') {
     try {
       // Obtener información del menú seleccionado
-      const menuResponse = await axios.get(`http://${url_Backend}:8080/menu`);
+      const menuResponse = await axios.get(`http://localhost:8080/menu`);
       const menuItem = menuResponse.data.find(item => item.id == itemId);
 
       if (!menuItem) {
@@ -252,7 +250,7 @@ bot.on('callback_query', async (query) => {
   } else if (action === 'eliminar') {
     try {
       const carritoId = userSessions[chatId].carritoId;
-      const response = await axios.delete(`http://${url_Backend}:8080/carrito/eliminar/${carritoId}/${itemId}`, {
+      const response = await axios.delete(`http://localhost:8080/carrito/eliminar/${carritoId}/${itemId}`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -285,7 +283,7 @@ bot.onText(/\/pagar/, async (msg) => {
 
   try {
     // Procesar el pago
-    const response = await axios.put(`http://${url_Backend}:8080/carrito/pagar/${carritoId}`, {
+    const response = await axios.put(`http://localhost:8080/carrito/pagar/${carritoId}`, {
       metodoPago: 'Efectivo', // Puedes cambiar esto por una lógica para seleccionar el método de pago
     });
 
@@ -318,7 +316,7 @@ bot.onText(/\/historialVentas (diario|semanal|mensual|anual)/, async (msg, match
     try {
       // Obtener las ventas del rango seleccionado para el usuario
       const userId = userSessions[chatId].id; // Obtener el ID del usuario desde la sesión
-      const response = await axios.get(`http://${url_Backend}:8080/historial/ventas?userId=${userId}&rango=${rango}`);
+      const response = await axios.get(`http://localhost:8080/historial/ventas?userId=${userId}&rango=${rango}`);
 
       // Verificar si la respuesta es exitosa
       if (response.status === 200) {
@@ -385,7 +383,7 @@ bot.on('message', async (msg) => {
         cantidad: parseInt(quantity, 10),
       };
 
-      const response = await axios.post(`http://${url_Backend}:8080/carrito/agregar`, payload);
+      const response = await axios.post(`http://localhost:8080/carrito/agregar`, payload);
 
       if (response.status === 200) {
         bot.sendMessage(chatId, `¡${menuName} ha sido agregado al carrito con éxito!`);
