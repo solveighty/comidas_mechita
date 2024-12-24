@@ -15,10 +15,13 @@ public class NotificacionService {
 
     // Notificar al administrador cuando se realice una compra
     public void notificarAdministrador(UsuarioEntity usuario, String mensaje) {
+        if (usuario.getRol() != UsuarioEntity.Rol.ADMIN) {
+            throw new RuntimeException("El usuario no es un administrador.");
+        }
         NotificacionEntity notificacion = new NotificacionEntity();
-        notificacion.setUsuario(usuario);  // El administrador recibe la notificación
+        notificacion.setUsuario(usuario);
         notificacion.setMensaje(mensaje);
-        notificacion.setTipoNotificacion(NotificacionEntity.TipoNotificacion.ADMINISTRADOR);  // Usamos el enum
+        notificacion.setTipoNotificacion(NotificacionEntity.TipoNotificacion.ADMINISTRADOR);
         notificacionRepository.save(notificacion);
     }
 

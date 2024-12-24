@@ -124,12 +124,16 @@ public class CarritoService {
             // 4. Guardar el carrito con los ítems vacíos
             carritoRepository.save(carrito);
 
-            // 5. Notificar al administrador sobre el pedido realizado (usando id del historialCompra)
+            // 5. Notificar al administrador sobre el pedido realizado
             String mensajeAdmin = "Nuevo pedido realizado por " + carrito.getUsuario().getNombre() +
                     " con ID de pedido: " + historialCompra.getId();
-            notificacionService.notificarAdministrador(carrito.getUsuario(), mensajeAdmin);
 
-            // 6. Notificar al usuario sobre el estado de su pedido (usando id del historialCompra)
+            // Obtener al administrador y notificarle
+            UsuarioEntity admin = usuarioRepository.findByRol(UsuarioEntity.Rol.ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+            notificacionService.notificarAdministrador(admin, mensajeAdmin);
+
+            // 6. Notificar al usuario sobre el estado de su pedido
             String mensajeUsuario = "Tu pedido con ID de pedido: " + historialCompra.getId() + " ha sido recibido y está en proceso.";
             notificacionService.notificarUsuario(carrito.getUsuario(), mensajeUsuario);
 
