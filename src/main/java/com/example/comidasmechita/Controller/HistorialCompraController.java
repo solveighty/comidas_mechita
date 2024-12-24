@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/historial")
+@CrossOrigin("*")
 public class HistorialCompraController {
     @Autowired
     private HistorialCompraService historialCompraService;

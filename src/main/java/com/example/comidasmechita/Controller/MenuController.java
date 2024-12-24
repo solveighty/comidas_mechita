@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/menu")
+@CrossOrigin("*")
 public class MenuController {
     @Autowired
     private MenuService menuService;

@@ -1,18 +1,11 @@
 package com.example.comidasmechita.Services;
 
-
 import com.example.comidasmechita.Entity.*;
 import com.example.comidasmechita.Repository.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Service
 public class CarritoService {
@@ -77,8 +70,6 @@ public class CarritoService {
 
         return carrito;  // Devuelve el carrito actualizado
     }
-
-
 
     public CarritoEntity updateItemCantidad(Long carritoItemId, int cantidad) {
         CarritoItemEntity item = carritoItemRepository.findById(carritoItemId)

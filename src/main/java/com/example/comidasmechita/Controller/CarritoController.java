@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/carrito")
+@CrossOrigin("*")
 public class CarritoController {
 
     @Autowired
