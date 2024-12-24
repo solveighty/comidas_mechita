@@ -2,6 +2,7 @@ import { Card } from 'primereact/card';
 import '../styles/Profile.css';
 
 function Profile({ userData }) {
+    console.log(userData); // Agrega este log para verificar la estructura de userData
     return (
         <div className="profile-container">
             <h1 className="profile-title">Mi Perfil</h1>

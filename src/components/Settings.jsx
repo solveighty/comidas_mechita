@@ -36,7 +36,7 @@ function Settings({ userData }) {
     const handleUpdateField = async (fieldName) => {
         try {
             setLoading(prev => ({ ...prev, [fieldName]: true }));
-
+    
             if (fieldName === 'contrasena') {
                 if (!formData.contrasenaActual) {
                     throw new Error('Debe ingresar su contraseña actual');
@@ -48,7 +48,7 @@ function Settings({ userData }) {
                     throw new Error('La contraseña debe tener al menos 6 caracteres');
                 }
             }
-
+    
             const dataToSend = {
                 id: updatedUserData.id,
                 usuario: updatedUserData.usuario,
@@ -60,7 +60,7 @@ function Settings({ userData }) {
                 rol: userData.rol,
                 [fieldName]: formData[fieldName]
             };
-
+    
             const response = await fetch(`http://${url_Backend}:8080/usuarios/editarusuario/${updatedUserData.id}`, {
                 method: 'PUT',
                 headers: {
@@ -68,24 +68,21 @@ function Settings({ userData }) {
                 },
                 body: JSON.stringify(dataToSend)
             });
-
+    
             if (!response.ok) {
                 throw new Error('Error al actualizar el campo');
             }
-
+    
             const result = await response.json();
-
-            setUpdatedUserData(prev => ({
-                ...prev,
-                [fieldName]: formData[fieldName],
-                rol: userData.rol
-            }));
-
+    
+            // Actualiza el estado de 'updatedUserData' con los datos completos después de la actualización
+            setUpdatedUserData(result);
+    
             setFormData(prev => ({
                 ...prev,
                 [fieldName]: ''
             }));
-
+    
             toast.current.show({
                 severity: 'success',
                 summary: '¡Éxito!',
@@ -93,7 +90,7 @@ function Settings({ userData }) {
                 life: 3000,
                 icon: 'pi pi-check-circle'
             });
-
+    
             if (fieldName === 'contrasena') {
                 setFormData(prev => ({
                     ...prev,
@@ -102,7 +99,7 @@ function Settings({ userData }) {
                     contrasenaActual: ''
                 }));
             }
-
+    
         } catch (error) {
             toast.current.show({
                 severity: 'error',
@@ -115,6 +112,7 @@ function Settings({ userData }) {
             setLoading(prev => ({ ...prev, [fieldName]: false }));
         }
     };
+    
 
     return (
         <div className="settings-container">

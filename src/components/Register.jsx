@@ -16,6 +16,8 @@ function RestaurantRegister() {
     confirmPassword: '',
     terms: false,
     verificationCode: '',
+    telefono: '', // New field for phone number
+    direccion: '', // New field for address
   });
   const [loading, setLoading] = useState(false);
   const [isCodeSent, setIsCodeSent] = useState(false); 
@@ -33,10 +35,10 @@ function RestaurantRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { fullName, email, username, password, confirmPassword, terms } = formData;
+    const { fullName, email, username, password, confirmPassword, terms, telefono, direccion } = formData;
 
     // Validaciones de campos obligatorios
-    if (!fullName || !email || !username || !password || !confirmPassword || !terms) {
+    if (!fullName || !email || !username || !password || !confirmPassword || !terms || !telefono || !direccion) {
       toast.current.show({
         severity: 'warn',
         summary: 'Advertencia',
@@ -142,9 +144,9 @@ function RestaurantRegister() {
           usuario: username,
           nombre: fullName,
           contrasena: password,
-          telefono: '', // Campo opcional
+          telefono: telefono, // Enviar el teléfono
           email: email,
-          direccion: '', // Campo opcional
+          direccion: direccion, // Enviar la dirección
           rol: 'NORMAL', // Rol por defecto
         };
 
@@ -259,7 +261,7 @@ function RestaurantRegister() {
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group password-group">
             <label htmlFor="confirmPassword">Confirmar Contraseña</label>
             <Password
               id="confirmPassword"
@@ -268,6 +270,30 @@ function RestaurantRegister() {
               onChange={handleChange}
               toggleMask
               placeholder="••••••••"
+              className="w-full"
+            />
+          </div>
+
+          <div className="form-group password-group">
+            <label htmlFor="telefono">Teléfono</label>
+            <InputText
+              id="telefono"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              placeholder="Ejemplo: 123-456-7890"
+              className="w-full"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="direccion">Dirección</label>
+            <InputText
+              id="direccion"
+              name="direccion"
+              value={formData.direccion}
+              onChange={handleChange}
+              placeholder="Ejemplo: Calle Falsa 123"
               className="w-full"
             />
           </div>
