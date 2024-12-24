@@ -9,28 +9,40 @@ const Notifications = ({ userData, setUnreadCount }) => {
 
   useEffect(() => {
     if (userData) {
-      fetch(`http://${url_Backend}:8080/notificaciones/usuario/${userData.id}`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Filtrar notificaciones dependiendo de si es admin o no
-          const filteredNotifications = data.filter((notification) => {
-            return notification.tipoNotificacion === 'USUARIO';
-          });
+      // Función para obtener notificaciones
+      const fetchNotifications = () => {
+        fetch(`http://${url_Backend}:8080/notificaciones/usuario/${userData.id}`)
+          .then((response) => response.json())
+          .then((data) => {
+            // Filtrar notificaciones dependiendo de si es admin o no
+            const filteredNotifications = data.filter((notification) => {
+              return notification.tipoNotificacion === 'USUARIO';
+            });
 
-          // Ordenar por fecha descendente (nuevas primero)
-          filteredNotifications.sort(
-            (a, b) => new Date(b.fecha) - new Date(a.fecha)
-          );
+            // Ordenar por fecha descendente (nuevas primero)
+            filteredNotifications.sort(
+              (a, b) => new Date(b.fecha) - new Date(a.fecha)
+            );
 
-          setNotifications(filteredNotifications);
+            setNotifications(filteredNotifications);
 
-          // Contar las notificaciones no leídas
-          const unreadCount = filteredNotifications.filter(
-            (notification) => !notification.leida
-          ).length;
-          setUnreadCount(unreadCount);
-        })
-        .catch((error) => console.error('Error fetching notifications:', error));
+            // Contar las notificaciones no leídas
+            const unreadCount = filteredNotifications.filter(
+              (notification) => !notification.leida
+            ).length;
+            setUnreadCount(unreadCount);
+          })
+          .catch((error) => console.error('Error fetching notifications:', error));
+      };
+
+      // Llamada inicial para cargar las notificaciones
+      fetchNotifications();
+
+      // Configurar polling (actualizar notificaciones cada 30 segundos)
+      const intervalId = setInterval(fetchNotifications, 30000);
+
+      // Limpiar el intervalo cuando el componente se desmonte
+      return () => clearInterval(intervalId);
     }
   }, [userData, setUnreadCount]);
 
