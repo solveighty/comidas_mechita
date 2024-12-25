@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: restaurant_mechita
+    ports:
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - restaurant_network
+
+  backend:
+    build:
+      context: ./restaurant_backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/restaurant_mechita
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+    depends_on:
+      - db
+    networks:
+      - restaurant_network
+
+  frontend:
+    build:
+      context: ./restaurant_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - restaurant_network
+
+  bot_telegram:
+    build:
+      context: ./bot_telegram
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/restaurant_mechita
+      DATABASE_USER: admin
+      DATABASE_PASSWORD: admin
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      - db
+    networks:
+      - restaurant_network
+    restart: always
+
+volumes:
+  db_data:
+
+networks:
+  restaurant_network:
+    driver: bridge
